@@ -9,18 +9,13 @@ const port = 9000
 
 function defaultRoute(req: express.Request, res: express.Response) {
     debug(`${req.method} - ${req.url}`)
-    debug(`${req.body}`)
-    console.dir(req.body)
+    debug(`${JSON.stringify(req.body)}`)
     res.status(404)
     res.end()
 
 }
 
 app.use(bodyParser.json({type: 'application/activity+json'}))
-
-app.get('/', (req, res) => {
-  res.end('Hello World!')
-})
 
 app.use(defaultRoute)
 
