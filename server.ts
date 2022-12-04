@@ -12,12 +12,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 export const logger = createLogger({
     level: "trace",
-    ...multistream([
+    streams: multistream([
         { stream: process.stdout },
         { stream: destination(`${__dirname}/combined.log`) },
     ]),
 }).child({ service: "toot" });
-logger.level = "trace";
 const app = express();
 const port = 9000;
 
