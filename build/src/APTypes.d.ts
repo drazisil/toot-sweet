@@ -14,8 +14,8 @@ declare class Link {
 }
 type ASImage = ASObject;
 declare class ASObject {
-    id?: string;
-    type?: string;
+    id: string;
+    type: string;
     attachment?: ASObject | Link;
     attributedTo?: ASObject | Link;
     audience?: ASObject | Link;
@@ -81,9 +81,10 @@ declare class Endpoint {
     signClientKey?: Link;
     sharedInbox?: PublicInbox;
 }
-declare class Actor {
-    id?: string;
-    type?: string;
+export declare class ActorPerson {
+    '@context': string;
+    id: string;
+    type: string;
     inbox: OrderedCollection;
     outbox: OrderedCollection;
     following: AccessCollection;
@@ -91,4 +92,10 @@ declare class Actor {
     streams?: Collection[];
     preferedUsername?: string;
     endpoints?: Link | Endpoint;
+    isSubscribedToPublic: boolean;
+    constructor({ id, subPublic }: {
+        id: string;
+        subPublic?: boolean;
+    });
 }
+export {};

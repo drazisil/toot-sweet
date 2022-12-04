@@ -1,4 +1,4 @@
-import { ActivityPubJSON } from "../handlers"
+import { ActivityPubJSON } from "./handlers"
 
 export function hasId(input: ActivityPubJSON) {
     return (typeof input['id'] != "undefined") ? true : false

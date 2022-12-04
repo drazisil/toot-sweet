@@ -14,8 +14,8 @@ class Link {
 }
 type ASImage = ASObject;
 class ASObject {
-    id?: string;
-    type?: string;
+    id: string;
+    type: string;
     attachment?: ASObject | Link;
     attributedTo?: ASObject | Link;
     audience?: ASObject | Link;
@@ -87,14 +87,23 @@ class Endpoint {
     signClientKey?: Link;
     sharedInbox?: PublicInbox;
 }
-class Actor {
-    id?: string;
-    type?: string;
-    inbox: OrderedCollection;
-    outbox: OrderedCollection;
-    following: AccessCollection;
-    liked: AccessCollection;
-    streams?: Collection[];
+export class ActorPerson {
+    '@context' = 'https://www.w3.org/ns/activitystreams'
+    id: string;
+    type = 'Person'
+    inbox: OrderedCollection = new OrderedCollection();
+    outbox: OrderedCollection = new OrderedCollection();
+    following: AccessCollection = new AccessCollection();
+    liked: AccessCollection = new AccessCollection();
+    streams?: Collection[] = [];
     preferedUsername?: string;
     endpoints?: Link | Endpoint;
+    isSubscribedToPublic: boolean
+
+    constructor({id, subPublic = false}: {id: string, subPublic?: boolean}) {
+        this.id = id
+        if (subPublic) {
+            this.isSubscribedToPublic = true
+        }
+    }
 }
