@@ -1,26 +1,24 @@
 #!/usr/bin/env node
-import express from 'express';
-import bodyParser from 'body-parser';
-import createDebug from 'debug';
-const debug = createDebug('toot');
+import express from "express";
+import bodyParser from "body-parser";
+import createDebug from "debug";
+import { handle } from "./handlers.js";
+export const debug = createDebug("toot");
 const app = express();
 const port = 9000;
 function defaultRoute(req, res) {
     debug(`${req.method} - ${req.url}`);
-    debug(`${JSON.stringify(req.body)}`);
-    console.dir(req.body);
-    res.status(404);
-    res.end();
+    handle(req, res);
 }
-app.use(bodyParser.json({ type: 'application/activity+json' }));
+app.use(bodyParser.json({ type: "application/activity+json" }));
 app.use(defaultRoute);
 const server = app.listen(port, () => {
-    debug('Hello');
+    debug("Hello");
     debug(`Example app listening on port ${port}`);
 });
-process.on('SIGINT', () => {
-    debug('SIGINT signal received: closing HTTP server');
+process.on("SIGINT", () => {
+    debug("SIGINT signal received: closing HTTP server");
     server.close(() => {
-        debug('HTTP server closed');
+        debug("HTTP server closed");
     });
 });

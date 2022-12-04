@@ -1,2 +1,3 @@
 #!/usr/bin/env node
-export {};
+import createDebug from "debug";
+export declare const debug: createDebug.Debugger;
