@@ -11,7 +11,8 @@
         "checkJs": true,
         "declaration": true,
         "outDir": "build",
-        "allowSyntheticDefaultImports": true
+        "allowSyntheticDefaultImports": true,
+        "sourceMap": true
     },
     "include": ["src", "server.ts"],
     "exclude": [
