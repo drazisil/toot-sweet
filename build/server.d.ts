@@ -7,3 +7,4 @@ export declare const logger: {
     error: (message: string) => void;
     fatal: (message: string) => void;
 };
+export declare const serverBaseURI: string;

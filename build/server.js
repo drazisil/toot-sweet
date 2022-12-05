@@ -7,6 +7,7 @@ import createLogger from "./src/logger.js";
 export const logger = createLogger({ defaultLevel: "trace", serviceName: "toot" });
 const app = express();
 const port = 9000;
+export const serverBaseURI = `http://mc.drazisil.com:${port}`;
 function defaultRoute(req, res) {
     logger.info(`${req.method} - ${req.url}`);
     handle(req, res);

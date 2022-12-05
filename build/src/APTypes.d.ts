@@ -98,4 +98,23 @@ export declare class ActorPerson {
         subPublic?: boolean;
     });
 }
+export declare class ActivityReject {
+    '@context': string;
+    id: string;
+    type: string;
+    actor: string;
+    object: string;
+    constructor({ targetObject, id, actor }: {
+        targetObject: string;
+        id: string;
+        actor: string;
+    });
+    toJSON(): {
+        "@context": string;
+        id: string;
+        type: string;
+        actor: string;
+        object: string;
+    };
+}
 export {};

@@ -7,6 +7,7 @@ export interface ActivityPubJSON {
     "@context": string;
     type: string;
     id: string;
+    object: string;
 }
 
 export class ActivityError extends Error {

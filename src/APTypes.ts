@@ -107,3 +107,27 @@ export class ActorPerson {
         }
     }
 }
+
+export class ActivityReject {
+    '@context' = 'https://www.w3.org/ns/activitystreams'
+    id: string;
+    type = 'Reject'
+    actor: string
+    object: string;
+
+    constructor({targetObject, id, actor}: {targetObject: string, id: string, actor: string}) {
+        this.id = id
+        this.actor = actor
+        this.object = targetObject
+    }
+
+    toJSON() {
+        return {
+            "@context": this["@context"],
+            "id": this.id,
+            "type": this.type,
+            "actor": this.actor,
+            "object": this.object
+        }
+    }
+}

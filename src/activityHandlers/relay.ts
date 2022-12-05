@@ -1,6 +1,8 @@
+import { randomUUID } from "crypto";
 import express from "express";
 import prompts from 'prompts'
-import { logger } from "../../server.js";
+import { logger, serverBaseURI } from "../../server.js";
+import { ActivityReject } from "../APTypes.js";
 import { ActivityPubJSON } from "../handlers.js";
 
 export async function relayFollowRequest(activity: ActivityPubJSON, res: express.Response) {
@@ -19,6 +21,9 @@ export async function relayFollowRequest(activity: ActivityPubJSON, res: express
         logger.debug('We accepted the request')
       } else {
         logger.debug('We refused the request')
+        const id = randomUUID()
+        const rejectActivity = new ActivityReject({targetObject: activity.object, id, actor: `${serverBaseURI}/${id}`})
+        res.json(rejectActivity.toJSON())
       }
 
     logger.debug('Exit relay follow request handler')
