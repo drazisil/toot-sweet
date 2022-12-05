@@ -17,7 +17,10 @@ export class ActivityError extends Error {
     }
 }
 
-const activityHandlers: Record<string, (activity: ActivityPubJSON, res: express.Response) => Promise<void>> = {
+const activityHandlers: Record<
+    string,
+    (activity: ActivityPubJSON, res: express.Response) => Promise<void>
+> = {
     Follow: handleFollowActivity,
 };
 
@@ -39,44 +42,45 @@ export function getActivityTargetType(inputJson: ActivityPubJSON) {
 }
 
 export async function handle(req: express.Request, res: express.Response) {
+    const { body: activityJSON }: { body: ActivityPubJSON } = req;
+    const jsonString = JSON.stringify(activityJSON);
+    logger.debug(`${jsonString}`);
+
+    if (
+        req.accepts(
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams'
+        )
+    ) {
+        logger.debug("Has valid accept");
+    } else {
+        logger.debug(req.accepts);
+        logger.debug("Does not have valid accept");
+        res.status(406);
+        res.end();
+    }
+
+    if (hasId(activityJSON)) {
+        logger.debug("Has id");
+    } else {
+        logger.debug("Does not have valid id");
+    }
+
+    let activityType: string;
     try {
-        const { body: activityJSON }: { body: ActivityPubJSON } = req;
-        const jsonString = JSON.stringify(activityJSON);
-        logger.debug(`${jsonString}`);
-
-        if (
-            req.accepts(
-                'application/ld+json; profile="https://www.w3.org/ns/activitystreams'
-            )
-        ) {
-            logger.debug("Has valid accept");
-        } else {
-            logger.debug(req.accepts);
-            logger.debug("Does not have valid accept");
-            res.status(406);
-            res.end();
-        }
-
-        if (hasId(activityJSON)) {
-            logger.debug("Has id");
-        } else {
-            logger.debug("Does not have valid id");
-        }
-
-        const activityType = activityJSON["type"] ?? "";
-
-        if (activityTypeIsValid(activityType)) {
-            logger.debug(`Activity type [${activityType}]`);
-
-            console.dir(activityJSON);
-
-            await activityHandlers[activityType].call(this, activityJSON, res);
-        } else {
-            logger.debug(`Does not have valid activity type: ${activityType}`);
-        }
+        activityType = activityJSON["type"] ?? "";
     } catch (error) {
         throw new Error(`Error parsing JSON: ${String(error)}`);
     }
+    if (activityTypeIsValid(activityType)) {
+        logger.debug(`Activity type [${activityType}]`);
+
+        console.dir(activityJSON);
+
+        await activityHandlers[activityType].call(this, activityJSON, res);
+    } else {
+        logger.debug(`Does not have valid activity type: ${activityType}`);
+    }
+
     res.status(404);
     res.end();
 }

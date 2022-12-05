@@ -9,15 +9,17 @@ export async function handleFollowActivity(
 ) {
     logger.debug(`Enter Follow activity handler`);
 
+    let activityTargetType;
     try {
-        const activityTargetType = getActivityTargetType(activity);
-        logger.debug(`The activity target type is [${activityTargetType}]`);
-        if (activityTargetType === "Public") {
-            logger.debug("Calling relay follow request handler");
-            await relayFollowRequest(activity, res);
-        }
+        activityTargetType = getActivityTargetType(activity);
     } catch (error) {
-        throw new ActivityError("Error getting activity type", activity);
+        
     }
+    logger.debug(`The activity target type is [${activityTargetType}]`);
+    if (activityTargetType === "Public") {
+        logger.debug("Calling relay follow request handler");
+        await relayFollowRequest(activity, res);
+    }
+
     logger.debug(`Exit Follow activity handler`);
 }
