@@ -53,7 +53,7 @@ export async function handle(req: express.Request, res: express.Response) {
     ) {
         logger.debug("Has valid accept");
     } else {
-        logger.debug(req.accepts);
+        logger.debug(String(req.accepts));
         logger.debug("Does not have valid accept");
         res.status(406);
         res.end();

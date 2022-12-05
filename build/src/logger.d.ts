@@ -1,5 +1,7 @@
-#!/usr/bin/env node
-export declare const logger: {
+export default function createLogger({ defaultLevel, serviceName, }: {
+    defaultLevel: "trace" | "debug" | "info" | "warn" | "error" | "fatal";
+    serviceName: string;
+}): {
     trace: (message: string) => void;
     debug: (message: string) => void;
     info: (message: string) => void;

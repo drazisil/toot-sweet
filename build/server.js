@@ -1,20 +1,10 @@
 #!/usr/bin/env node
 import express from "express";
 import bodyParser from "body-parser";
-import createLogger, { destination, multistream } from "pino";
 import { handle } from "./src/handlers.js";
 import { ActorPerson } from "./src/APTypes.js";
-import path from "path";
-import { fileURLToPath } from "url";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-export const logger = createLogger({
-    level: "trace",
-    streams: multistream([
-        { stream: process.stdout },
-        { stream: destination(`${__dirname}/combined.log`) },
-    ]),
-}).child({ service: "toot" });
+import createLogger from "./src/logger.js";
+export const logger = createLogger({ defaultLevel: "trace", serviceName: "toot" });
 const app = express();
 const port = 9000;
 function defaultRoute(req, res) {
