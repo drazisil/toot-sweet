@@ -3,7 +3,10 @@
  */
 
 /**
- * @typedef {{'@context': string}} ActivityStreamsJSON
+ * @typedef {{
+ *   '@context'?: string, 
+ *   type?: string
+ * }} ActivityStreamsJSON
  */
 /**
  *
