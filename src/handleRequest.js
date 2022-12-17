@@ -1,18 +1,6 @@
-const ACTIVITYSTREAMS_CONTENT_TYPE = 'application/activity+json';
-/**
- * @typedef {{'@context': string}} ActivityStreamsJSON
- */
-/**
- *
- * @param {ActivityStreamsJSON} activityStreamsJSON
- * @param {import('node:http').IncomingHttpHeaders} headers
- * @returns {Promise<HandledRequest | null>}
-*/
+import { handleActivityStreamJSON } from './handleActivityStreamJSON.js';
 
-async function handleActivityStreamJSON(activityStreamsJSON, headers) {
-  console.dir(activityStreamsJSON);
-  return null;
-}
+const ACTIVITYSTREAMS_CONTENT_TYPE = 'application/activity+json';
 /**
  * @typedef {{body: string, statusCode: string, headers?: import('node:http').OutgoingHttpHeaders | import('node:http').OutgoingHttpHeader[]}} HandledRequest
  */

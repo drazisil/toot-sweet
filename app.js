@@ -1,5 +1,5 @@
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
-import { handleRequest } from './handleRequest';
+import { handleRequest } from './src/handleRequest.js';
 
 // Create a local server to receive data from
 const server = createServer(handleRequest);
