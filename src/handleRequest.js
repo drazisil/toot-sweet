@@ -13,6 +13,7 @@ const ACTIVITYSTREAMS_CONTENT_TYPE = 'application/activity+json';
 
 async function handleRequestBody(data, headers) {
   if (headers['content-type'] === ACTIVITYSTREAMS_CONTENT_TYPE) {
+    console.info('ActivityStreams')
     return handleActivityStreamJSON(JSON.parse(data), headers);
   } else {
     console.debug(data);
@@ -61,7 +62,7 @@ export function handleRequest(req, res) {
   console.debug(req.url);
   req.setEncoding("utf8");
   if (['POST', 'PUT'].includes(req.method)) {
-    handlePOST(req, res);
+    return handlePOST(req, res);
   }
   return writeResponse(res, {
     body: JSON.stringify({
