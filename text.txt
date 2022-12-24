@@ -1,5 +1,0 @@
-(request-target): post /inbox
-host: mc.drazisil.com
-date: Fri, 23 Dec 2022 01:40:25 GMT
-digest: SHA-256=Mk1hF+ierLAA7o7s7+83qMZ1QbjBW+fSM/WCF82+h/Y=
-content-type: application/activity+json

@@ -1,8 +1,8 @@
 module.exports = {
-  apps : [{
+  apps: [{
     name: "toot-sweet",
     script: "./app.js",
-    watch: ["*.js"],
+    watch: ["src/**/*.js", "app.js"],
     env: {
       NODE_ENV: "development",
       DEBUG: 'toot-sweet'
