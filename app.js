@@ -6,8 +6,6 @@ import { apiRouter } from './src/routers/index.js'
 import { ObjectManager } from './src/ObjectManager.js'
 import { Collection } from './src/Collection.js'
 import { readFileSync } from 'fs'
-import { Actor } from './src/Actor.js'
-import { ActivityPubObject } from './src/ActivityPubObject.js'
 import { Application } from './src/Application.js'
 
 
