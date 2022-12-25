@@ -3,6 +3,10 @@ import createDebug from 'debug'
 import { createLogger } from 'bunyan'
 import httpSignature from 'http-signature'
 import { apiRouter } from './src/routers/index.js'
+import { CollectionManager } from './src/CollectionManager.js'
+import { Collection } from './src/Collection.js'
+import { ActivityPubObject } from './src/ActivityPubObject.js'
+
 
 //#region Config
 const appName = 'toot-sweet'
@@ -13,87 +17,6 @@ const port = 9000
 const debug = createDebug('toot-sweet')
 const log = createLogger({ name: appName })
 const app = express()
-//#endregion Init
-
-//#region Types
-/**
- * @typedef {Object} ParsedHTTPSignature
- * @property {string} keyId
-*/
-
-/**
- * @typedef {Object} ActivityPubLink
-*/
-//#endregion Types
-
-//#region Classes
-/**
- * @class {Object} ActivityPubObject
- * @property {string} context - Mapped externally as "@context"
- * @property {string} id
- * @property {string} type
- */
-class ActivityPubObject {
-  '@context' = "https://www.w3.org/ns/activitystreams"
-  /** @type {string} */
-  id;
-  /** @type {string} */
-  type;
-
-  /** 
-   * @construct
-   * @param {string} id
-   * @param {string} type
-   */
-  constructor(id, type) {
-    this.id = id
-    this.type = type
-  }
-}
-
-/**
- * @class Collection
- * @extends {ActivityPubObject}
- * @property {number} totalItems
- * @property {CollectionPage | ActivityPubLink} current
- * @property {CollectionPage | ActivityPubLink} first
- * @property {CollectionPage | ActivityPubLink} last
- * @property {ActivityPubObject | ActivityPubLink | ActivityPubObject[] | ActivityPubLink[]} items
-*/
-class Collection extends ActivityPubObject {
-  number = 0
-  /** @type {CollectionPage | ActivityPubLink | undefined} */
-  first
-  /** @type {CollectionPage | ActivityPubLink | undefined} */
-  last
-  /** @type {ActivityPubObject | ActivityPubLink | ActivityPubObject[] | ActivityPubLink[]} */
-  items = []
-
-  /**
-   * 
-   * @param {string} id 
-   */
-  constructor(id) {
-    super(id, 'Collection')
-  }
-}
-
-/**
- * @class CollectionPage
- * @extends {Collection}
- * @property {Link | Collection} partOf
- * @property {CollectionPage | ActivityPubLink} next
- * @property {CollectionPage | ActivityPubLink} prev
- */
-class CollectionPage extends Collection {
-  /** @type {ActivityPubLink | Collection | undefined} */
-  partOf
-  /** @type {CollectionPage | ActivityPubLink | undefined} */
-  next
-  /** @type {CollectionPage | ActivityPubLink | undefined} */
-  prev
-}
-
 /**
  * @class Actor
  * @extends {ActivityPubObject}
@@ -117,65 +40,14 @@ class Actor extends ActivityPubObject {
     this.publicKey = publicKey
   }
 }
+//#endregion Init
+//#region Types
+/**
+ * @typedef {Object} ParsedHTTPSignature
+ * @property {string} keyId
+*/
+//#endregion Types
 
-class CollectionManager {
-  /** @type {Collection[]} */
-  collections = []
-
-  /**
-   * Add a new collection
-   * @param {Collection} newConnection 
-   */
-  add(newConnection) {
-    this.collections.push(newConnection)
-  }
-
-  /**
-   * Find a connection by id
-   * @param {string} id 
-   * @returns {Collection | undefined}
-   */
-  find(id) {
-    return this.collections.find(collection => {
-      collection.id === id
-    })
-  }
-
-  /**
-   * List all collections
-   * @returns {Collection[]}
-   */
-  list() {
-    return this.collections
-  }
-
-  /**
-   * 
-   * @param {string} id 
-   * @param {Collection} updatedCollection 
-   * @throws {Error} - Collection not found
-   */
-  update(id, updatedCollection) {
-    const index = this.collections.findIndex(collection => {
-      collection.id === id
-    })
-    if (index < 0) {
-      throw new Error('Collection not found')
-    }
-    this.collections[index] = updatedCollection
-  }
-
-  /**
-   * Remove a collection by id
-   * @param {string} id 
-   */
-  remove(id) {
-    const updatedCollections = this.collections.filter(collection => {
-      collection.id !== id
-    })
-    this.collections = updatedCollections
-  }
-}
 //#endregion Classes
 
 //#region Methods
@@ -253,12 +125,12 @@ app.use(errorHandler)
 app.use((req, res) => {
   res.status(404).send("Sorry can't find that!")
 })
-//#endregion 404 Handlers
+//#endregion 404 Handler
 
 //#region Setup
 const publicCollection = new Collection('https://www.w3.org/ns/activitystreams#Public')
 
-const connectionManager = new CollectionManager()
+const connectionManager = CollectionManager.getCollectionManager()
 connectionManager.add(publicCollection)
 
 //#endregion Setup

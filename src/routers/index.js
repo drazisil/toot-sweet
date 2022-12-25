@@ -1,6 +1,7 @@
 import express, { response } from 'express'
 import createDebug from 'debug'
 import { createLogger } from 'bunyan'
+import { CollectionManager } from '../CollectionManager.js'
 
 //#region Config
 const appName = 'toot-sweet'
@@ -17,6 +18,14 @@ apiRouter.use((req, res, next) => {
     next()
   })
 
-  apiRouter.get('/', (req, res) => {
-    res.end('Hi')
+  apiRouter.get('/_all_docs', (req, res) => {
+    const manager = CollectionManager.getCollectionManager()
+    res.json(manager.list())
+    res.end()
   })
+
+  //#region 404 Handler
+apiRouter.use((req, res) => {
+    res.status(404).send("Opps")
+  })
+  //#endregion 404 Handlers
