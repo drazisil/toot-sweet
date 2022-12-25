@@ -30,7 +30,7 @@ export class Collection extends ActivityPubObject {
    * @param {string} id
    */
   constructor(id) {
-    super(id, 'Collection');
+    super({id, type: 'Collection'});
   }
 }
 

@@ -1,5 +1,5 @@
 
-//#region Classes
+
 /**
  * @class {Object} ActivityPubObject
  * @property {string} context - Mapped externally as "@context"
@@ -15,10 +15,11 @@ export class ActivityPubObject {
 
   /**
    * @construct
-   * @param {string} id
-   * @param {string} type
+   * @param {object} param0
+   * @param {string} param0.id
+   * @param {string} param0.type
    */
-  constructor(id, type) {
+  constructor({id, type}) {
     this.id = id;
     this.type = type;
   }

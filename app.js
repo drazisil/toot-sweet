@@ -3,9 +3,12 @@ import createDebug from 'debug'
 import { createLogger } from 'bunyan'
 import httpSignature from 'http-signature'
 import { apiRouter } from './src/routers/index.js'
-import { CollectionManager } from './src/CollectionManager.js'
+import { ObjectManager } from './src/ObjectManager.js'
 import { Collection } from './src/Collection.js'
+import { readFileSync } from 'fs'
+import { Actor } from './src/Actor.js'
 import { ActivityPubObject } from './src/ActivityPubObject.js'
+import { Application } from './src/Application.js'
 
 
 //#region Config
@@ -17,29 +20,6 @@ const port = 9000
 const debug = createDebug('toot-sweet')
 const log = createLogger({ name: appName })
 const app = express()
-/**
- * @class Actor
- * @extends {ActivityPubObject}
- * @property {Object} publicKey
- * @property {string} publicKey.publicKeyPem
- */
-class Actor extends ActivityPubObject {
-  publicKey = {
-    publicKeyPem: ''
-  }
-
-  /**
-   * 
-   * @param {Object} param0 
-   * @param {string} param0.id
-   * @param {object} param0.publicKey
-   * @param {string} param0.publicKey.publicKeyPem
-   */
-  constructor ({id, publicKey}) {
-    super(id, 'Actor')
-    this.publicKey = publicKey
-  }
-}
 //#endregion Init
 //#region Types
 /**
@@ -48,18 +28,18 @@ class Actor extends ActivityPubObject {
 */
 //#endregion Types
 
-//#endregion Classes
+
 
 //#region Methods
 /**
  * Fetch an Actor object
  * @param {string} id 
- * @returns {Promise<Actor>}
+ * @returns {Promise<Application>}
 */
-async function fetchActor(id) {
+async function fetchRemoteActor(id) {
   return fetch(new URL(id))
   .then(res => res.json())
-  .then(json => new Actor(json))
+  .then(json => new Application(json))
   .catch(err => {
     log.error(err)
     throw new Error(`Unable to fetch actor`)
@@ -70,20 +50,22 @@ async function fetchActor(id) {
  * 
  * @type {express.RequestHandler}
  */
-async function handleActivityPubRequest(req, res, next) {
+async function checkActivityPubRequest(req, res, next) {
   if (req.headers['content-type'] === 'application/activity+json') {
     /** @type {ParsedHTTPSignature} */
     // @ts-ignore
     const parsed = httpSignature.parseRequest(req)
 
-
     debug(parsed.keyId)
-    const key = (await fetchActor(parsed.keyId)).publicKey.publicKeyPem
+    const key = (await fetchRemoteActor(parsed.keyId)).publicKey.publicKeyPem
     const validHTTPSignature = httpSignature.verifySignature(parsed, key)
     debug(`Signature is valid: ${validHTTPSignature}`)
-
+    req.headers['x-activity-pub-request'] = 'true'
     debug(req.body)
+    return next()
   }
+
+  req.headers['x-activity-pub-request'] = 'false'
   next()
 }
 
@@ -104,7 +86,12 @@ app.use((req, res, next) => {
 })
 app.use(express.json({ type: 'application/activity+json' }))
 
-app.use(handleActivityPubRequest)
+app.use(checkActivityPubRequest)
+
+app.use((req, res, next) => {
+  log.info(`Is valid ActivityPub request: ${req.headers['x-activity-pub-request']}`)
+  next()
+})
 //#endregion Middleware
 
 //#region Routes
@@ -130,8 +117,24 @@ app.use((req, res) => {
 //#region Setup
 const publicCollection = new Collection('https://www.w3.org/ns/activitystreams#Public')
 
-const connectionManager = CollectionManager.getCollectionManager()
+const connectionManager = ObjectManager.getObjectManager()
 connectionManager.add(publicCollection)
+
+const defaultPublicKey = readFileSync('data/public_key.pem').toString('utf8')
+
+const applicationInbox = new Collection('http://mc.drazisil.com:9000/actor/inbox')
+const applicationOutbot = new Collection('http://mc.drazisil.com:9000/actor/outbox')
+
+const application = {
+  '@context': "https://www.w3.org/ns/activitystreams",
+  id: 'http://mc.drazisil.com:9000/actor',
+  type: 'Application',
+  publicKey: {
+    publicKeyPem: defaultPublicKey
+  }
+}
+
+connectionManager.add(application)
 
 //#endregion Setup
 

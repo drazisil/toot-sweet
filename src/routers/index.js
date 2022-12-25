@@ -1,7 +1,7 @@
 import express, { response } from 'express'
 import createDebug from 'debug'
 import { createLogger } from 'bunyan'
-import { CollectionManager } from '../CollectionManager.js'
+import { ObjectManager } from '../ObjectManager.js'
 
 //#region Config
 const appName = 'toot-sweet'
@@ -19,7 +19,7 @@ apiRouter.use((req, res, next) => {
   })
 
   apiRouter.get('/_all_docs', (req, res) => {
-    const manager = CollectionManager.getCollectionManager()
+    const manager = ObjectManager.getObjectManager()
     res.json(manager.list())
     res.end()
   })
