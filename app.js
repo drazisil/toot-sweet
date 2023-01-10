@@ -1,66 +1,100 @@
 import bootStrap from './src/bootstrap.js'
 
-import express from 'express'
-import createDebug from 'debug'
-import { createLogger } from 'bunyan'
-import httpSignature from 'http-signature'
-import { apiRouter } from './src/routers/index.js'
-import { ObjectManager } from './src/ObjectManager.js'
-import { Collection } from './src/Collection.js'
 import { readFileSync } from 'fs'
-import { Application } from './src/Application.js'
-import http from 'node:http'
-import https from 'node:https'
+import * as http from 'node:http'
+import * as https from 'node:https'
+import log from './log.js'
+import { handleWebFingerRequest } from './src/webFinger.js'
 
-export { }
-
-const log = console
 
 /**
- * @typedef {object} RequestInfo
- * @property {http.IncomingHttpHeaders} headers
- * @property {string} [method]
- * @property {string} [url]
+ * @class RequestInfo
  */
+export class RequestInfo {
+  /** @type {http.IncomingHttpHeaders} */
+  headers;
 
-/**
- * @typedef {object} RequestWithBody
- * @property {RequestInfo} requestInfo
- * @property {string} body
- */
+  /** @type {string} */
+  method;
 
-/**
- * 
- * @param {RequestWithBody} requestWithBody
- */
-function handleWebFingerRequest(requestWithBody) {
+  /** @type {string} */
+  url;
 
-  getRequestedWebFingerResource(requestWithBody)
+  /** @type {http.ServerResponse} */
+  response;
 
-  
+  /**
+   * 
+   * @param {http.IncomingHttpHeaders} headers 
+   * @param {string} method
+   * @param {string} url
+   * @param {http.ServerResponse} response 
+   */
+  constructor(headers, method = '', url = '', response) {
+    this.headers = headers
+    this.method = method
+    this.url = url
+    this.response = response
+  }
+
+  /**
+   * 
+   * @param {http.IncomingHttpHeaders} headers 
+   * @param {string | undefined} method 
+   * @param {string | undefined} url 
+   * @param {http.ServerResponse} response 
+   * @returns RequestInfo
+   */
+  static toRequestInfo(headers, method, url, response) {
+    return new RequestInfo(headers, method, url, response)
+  }
+
+  toString() {
+    return JSON.stringify({
+      headers: this.headers,
+      method: this.method,
+      url: this.url
+    })
+  }
 }
 
 /**
- * 
- * @param {RequestWithBody} requestWithBody 
- * @returns {string | null} 
- * @throws {Error} - when unable to parse the resource parameter
+ * @class
+ * @property {RequestInfo} requestInfo
+ * @property {string} body
  */
-function getRequestedWebFingerResource(requestWithBody) {
-  try {
+export class RequestWithBody {
+  /** @type {RequestInfo} */
+  requestInfo;
 
-    const fullUrl = ['https:/', requestWithBody.requestInfo.headers.host, requestWithBody.requestInfo.url].join('/')
+  /** @type {string} */
+  body;
 
-    const parsedURL = new URL(fullUrl)
+  /**
+   * 
+   * @param {RequestInfo} requestInfo 
+   * @param {string} body 
+   */
+  constructor(requestInfo, body) {
+    this.requestInfo = requestInfo
+    this.body = body
+  }
 
-    const requestedResource = parsedURL.searchParams.get('resource')
+  /**
+   * 
+   * @param {RequestInfo} requestInfo 
+   * @param {string} body 
+   * @returns RequestWithBody
+   */
+  static toRequestWithBody(requestInfo, body) {
+    return new RequestWithBody(requestInfo, body)
+  }
 
-    log.info(requestedResource)
-
-    return requestedResource
-  } catch (error) {
-    log.error(`Unable to parse requested resource: ${String(error)}`)
-    throw error
+  toString() {
+    return JSON.stringify({
+      requestInfo: JSON.parse(this.requestInfo.toString()),
+      body: this.body
+    })
   }
 }
 
@@ -69,23 +103,22 @@ function getRequestedWebFingerResource(requestWithBody) {
  * @param {RequestWithBody} requestWithBody
  */
 function handleActivityStreamRequest(requestWithBody) {
-  
+
 }
 
 /**
  * 
  * @param {RequestWithBody} requestWithBody 
  */
-
 async function handleRequest(requestWithBody) {
-  log.info(requestWithBody)
+  log.info(`Request: ${requestWithBody}}`)
 
   if (requestWithBody.requestInfo.url?.startsWith('/.well-known/webfinger?resource=acct:')) {
     // Handle WebFinger request
     log.info('WebFinger')
     handleWebFingerRequest(requestWithBody)
   }
-  
+
   if (requestWithBody.requestInfo.headers['content-type'] === 'application/activity+json') {
     log.info('ActivityStream')
     handleActivityStreamRequest(requestWithBody)
@@ -99,28 +132,20 @@ async function handleRequest(requestWithBody) {
  * @param {http.ServerResponse} response 
  */
 function requestListener(request, response) {
-  /**
-   * @type {RequestInfo}
-   */
-  const requestInfo = {
-    headers: request.headers,
-    method: request.method,
-    url: request.url
-  }
+  /** @type {RequestInfo} */
+  const requestInfo = RequestInfo.toRequestInfo(request.headers, request.method, request.url, response)
 
   let body = '';
 
   request.setEncoding("utf8")
-  request.on("data", (chunk) => {
+  request.on("data", (/** @type {string} */ chunk) => {
     body = body.concat(chunk)
   })
 
   request.on("end", () => {
     /** @type {RequestWithBody} */
-    const requestWithBody = {
-      requestInfo,
-      body
-    }
+    const requestWithBody = RequestWithBody.toRequestWithBody(requestInfo, body)
+    
     handleRequest(requestWithBody)
   })
 }
@@ -149,7 +174,7 @@ try {
   log.error(`Unable to read certificate file`)
   exitCode = -1
   process.exit(exitCode)
-  
+
 }
 
 const port = 443
@@ -163,7 +188,7 @@ server.listen(port, () => {
   log.info(`Server listening on port ${port}`)
 })
 
-server.on("error", (err) => {
+server.on("error", (/** @type {unknown} */ err) => {
   log.error(`Error in server: ${String(err)}`)
 })
 
