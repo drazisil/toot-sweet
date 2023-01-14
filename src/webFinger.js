@@ -1,5 +1,78 @@
 import log from '../log.js';
 
+/**
+ * @typedef {object} WebFingerLink
+ * @property {string} rel
+ * @property {string} type
+ * @property {string} href
+ */
+
+/**
+ * @global
+ * @typedef {object} WebFingerAccount
+ * @property {string} subject
+ * @property {string[]} aliases
+ * @property {object} [properties]
+ * @property {WebFingerLink[]} links
+ */
+
+export class WebFingerAccountManager {
+
+  /** @type {WebFingerAccountManager} */
+  static _instance
+
+  /** @type {WebFingerAccount[]} */
+  accounts = []
+
+  constructor() {
+    this.add(
+      {
+        subject: "acct:drazi@mc.drazisil.com",
+        aliases: [],
+        links: [
+          {
+            rel: 'self',
+            type: 'application/activity+json',
+            href: 'https://mc.drazisil.com/users/drazi'
+          }
+        ]
+      }
+    )
+  }
+
+  /**
+   * 
+   * @returns {WebFingerAccountManager}
+   */
+  static getAccountManager() {
+    if (typeof WebFingerAccountManager._instance === "undefined") {
+      WebFingerAccountManager._instance = new WebFingerAccountManager()
+    }
+
+    return WebFingerAccountManager._instance
+  }
+
+  /**
+   * 
+   * @param {WebFingerAccount} newAccount 
+   */
+  add(newAccount) {
+    this.accounts.push(newAccount)
+  
+  }
+  /**
+   * 
+   * @param {string} subject 
+   * @returns {WebFingerAccount | undefined}
+   */
+  find(subject) {
+    return this.accounts.find(account => {
+      return account.subject === subject
+    })
+  }
+}
+
+
 
 /**
  *
@@ -72,6 +145,19 @@ export function handleWebFingerRequest(requestWithBody) {
   if (accountAndType?.accountType === 'local') {
     log.info(`Request for a local account: ${accountAndType.account}`);
   }
+
+  const accountManager = WebFingerAccountManager.getAccountManager()
+
+  const accountRecord = accountManager.find(requestedResource)
+
+  if (typeof accountRecord === "undefined") {
+    log.error('Record not found');
+    requestWithBody.requestInfo.response.statusCode = 404;
+    return requestWithBody.requestInfo.response.end('Not found');
+  }
+  log.info(JSON.stringify(accountRecord))
+  requestWithBody.requestInfo.response.setHeader('content-type', 'application/json')
+  return requestWithBody.requestInfo.response.end(JSON.stringify(accountRecord))
 
 }
 /**
