@@ -1,4 +1,5 @@
 import log from '../log.js';
+import { json404 } from './json404.js';
 
 /**
  * @typedef {object} WebFingerLink
@@ -28,6 +29,19 @@ export class WebFingerAccountManager {
     this.add(
       {
         subject: "acct:drazi@mc.drazisil.com",
+        aliases: [],
+        links: [
+          {
+            rel: 'self',
+            type: 'application/activity+json',
+            href: 'https://mc.drazisil.com/users/drazi'
+          }
+        ]
+      }
+    )
+    this.add(
+      {
+        subject: "acct:@mc.drazisil.com",
         aliases: [],
         links: [
           {
@@ -152,8 +166,7 @@ export function handleWebFingerRequest(requestWithBody) {
 
   if (typeof accountRecord === "undefined") {
     log.error('Record not found');
-    requestWithBody.requestInfo.response.statusCode = 404;
-    return requestWithBody.requestInfo.response.end('Not found');
+    return json404(requestWithBody, 'Record not found');
   }
   log.info(JSON.stringify(accountRecord))
   requestWithBody.requestInfo.response.setHeader('content-type', 'application/json')

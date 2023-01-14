@@ -5,6 +5,7 @@ import * as http from 'node:http'
 import * as https from 'node:https'
 import log from './log.js'
 import { handleWebFingerRequest } from './src/webFinger.js'
+import { handleActivityStreamRequest } from './src/activityStream.js'
 
 
 /**
@@ -100,14 +101,6 @@ export class RequestWithBody {
 
 /**
  * 
- * @param {RequestWithBody} requestWithBody
- */
-function handleActivityStreamRequest(requestWithBody) {
-
-}
-
-/**
- * 
  * @param {RequestWithBody} requestWithBody 
  */
 async function handleRequest(requestWithBody) {
@@ -119,7 +112,9 @@ async function handleRequest(requestWithBody) {
     handleWebFingerRequest(requestWithBody)
   }
 
-  if (requestWithBody.requestInfo.headers['content-type'] === 'application/activity+json') {
+  if (requestWithBody.requestInfo.headers['content-type'] === 'application/activity+json'
+    || requestWithBody.requestInfo.headers['accept']?.includes("application/activity+json")
+    || requestWithBody.requestInfo.url.includes('type=jsonTest')) {
     log.info('ActivityStream')
     handleActivityStreamRequest(requestWithBody)
   }
@@ -145,7 +140,7 @@ function requestListener(request, response) {
   request.on("end", () => {
     /** @type {RequestWithBody} */
     const requestWithBody = RequestWithBody.toRequestWithBody(requestInfo, body)
-    
+
     handleRequest(requestWithBody)
   })
 }
