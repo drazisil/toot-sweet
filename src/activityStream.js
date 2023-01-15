@@ -7,8 +7,8 @@ import { json404 } from './json404.js';
  */
 
 export class ActivityStreamObject {
-  /** @type {"https://www.w3.org/ns/activitystreams"} */
-  "@context" = "https://www.w3.org/ns/activitystreams"
+  /** @type {string | string[]} */
+  "@context" = ["https://www.w3.org/ns/activitystreams"]
   /** @type {string} */
   id = ""
   /** @type {string} */
@@ -24,11 +24,11 @@ export class UsersController {
   respondUser(requestWithBody) {
     /** @type {ActivityStreamObject | Record<string, string>} */
     const response = {
-      "@context": "https://www.w3.org/ns/activitystreams",
+      "@context": ["https://www.w3.org/ns/activitystreams", "https://w3id.org/security/v1"],
       "id": this.baseUser,
       "type": "Person",
       "inbox": this.baseUser.concat("/inbox"),
-      "outbot": this.baseUser.concat("/outbox"),
+      "outbox": this.baseUser.concat("/outbox"),
     }
     requestWithBody.requestInfo.response.setHeader("content-type", 'application/activity+json')
 

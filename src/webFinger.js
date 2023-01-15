@@ -41,7 +41,7 @@ export class WebFingerAccountManager {
     )
     this.add(
       {
-        subject: "acct:@mc.drazisil.com",
+        subject: "acct:mc.drazisil.com@mc.drazisil.com",
         aliases: [],
         links: [
           {
@@ -162,7 +162,15 @@ export function handleWebFingerRequest(requestWithBody) {
 
   const accountManager = WebFingerAccountManager.getAccountManager()
 
-  const accountRecord = accountManager.find(requestedResource)
+  let cleanedRequestedResource = requestedResource
+
+  if (accountAndType?.account.startsWith("@")) {
+    cleanedRequestedResource = "acct:".concat(accountAndType.account.substring(1), accountAndType.account)
+  }
+
+  log.info(cleanedRequestedResource)
+
+  const accountRecord = accountManager.find(cleanedRequestedResource)
 
   if (typeof accountRecord === "undefined") {
     log.error('Record not found');
