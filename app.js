@@ -5,10 +5,10 @@ import * as http from 'node:http'
 import * as https from 'node:https'
 import log from './log.js'
 import { handleWebFingerRequest } from './src/webFinger.js'
-import { handleActivityStreamRequest } from './src/activityStream.js'
 import { randomUUID } from 'crypto'
 import { json404 } from './src/json404.js'
 import { RequestInfo, RequestWithBody } from './RequestInfo.js'
+import { PeopleConnector } from './src/PeopleConnector.js'
 
 
 /**
@@ -16,18 +16,21 @@ import { RequestInfo, RequestWithBody } from './RequestInfo.js'
  * @param {RequestWithBody} requestWithBody 
  */
 async function handlePeopleRequest(requestWithBody) {
-  const urlParts = requestWithBody.url.split("/")
-  
-  log.info({"message": "Request for person", "person": urlParts})
+  const parts = requestWithBody.url.split("/")
 
+  log.info({ "message": "Request for person", "person": parts })
 
-  if (requestWithBody.requestInfo.headers['content-type'] === 'application/activity+json'
-    || requestWithBody.requestInfo.headers['accept']?.includes("application/activity+json")
-    || requestWithBody.requestInfo.url.includes('type=jsonTest')) {
-    handleActivityStreamRequest(requestWithBody)
+  const people = new PeopleConnector()
+
+  const person = people.findPerson(parts[0])
+
+  if (typeof person === "undefined") {
+    return json404(requestWithBody);
   }
 
-  return json404(requestWithBody);
+  requestWithBody.requestInfo.response.setHeader("content-type", 'application/activity+json');
+
+  return requestWithBody.requestInfo.response.end(JSON.stringify(person));
 }
 
 /**
@@ -35,16 +38,18 @@ async function handlePeopleRequest(requestWithBody) {
  * @param {RequestWithBody} requestWithBody 
  */
 async function handleRequest(requestWithBody) {
-  log.info({"headers": requestWithBody.requestInfo.headers, "body": requestWithBody.body})
-  const { url: requestUrl } = requestWithBody
+  log.info({ "method": requestWithBody.requestInfo.method, "url": requestWithBody.url, "headers": requestWithBody.requestInfo.headers, "body": requestWithBody.body })
 
-  if (requestUrl.startsWith('/.well-known/webfinger?resource=acct:')) {
+  if (requestWithBody.url.startsWith('/.well-known/webfinger?resource=acct:')) {
     // Handle WebFinger request
     return handleWebFingerRequest(requestWithBody)
   }
 
-  if (requestUrl.startsWith("/people")) {
-    return handlePeopleRequest(requestWithBody)  
+  requestWithBody.url = requestWithBody.url.substring(1)
+
+  if (requestWithBody.url.startsWith("people")) {
+    requestWithBody.url = requestWithBody.url.replace("people/", "")
+    return handlePeopleRequest(requestWithBody)
   }
 
   return json404(requestWithBody);

@@ -26,16 +26,26 @@ export class Person extends ActivityStreamObject {
 }
 
 export class PeopleConnector {
-  baseUser = "https://mc.drazisil.com/users/drazi";
-  /**
-   *
-   * @param {RequestWithBody} requestWithBody
-   */
-  respondUser(requestWithBody) {
-    const publicKeyPem = readFileSync('data/dev-key.pem', { encoding: "utf8" });
+  baseUser = "https://mc.drazisil.com/people/drazi";
 
-    /** @type {Person} */
-    const response = {
+  /** @type {Person[]} */
+  people = []
+
+  /**
+   * 
+   * @param {string} person 
+   * @returns {Person | undefined}
+   */
+  findPerson(person) {
+    return this.people.find(p => {
+      return p.preferredUsername === person
+    })
+  }
+
+  constructor() {
+    const publicKeyPem = readFileSync('data/dev-key.pem', { encoding: "utf8" });
+    
+    this.people.push({
       "@context": ["https://www.w3.org/ns/activitystreams", "https://w3id.org/security/v1"],
       "id": this.baseUser,
       "type": "Person",
@@ -48,6 +58,6 @@ export class PeopleConnector {
         "owner": this.baseUser,
         "publicKeyPem": publicKeyPem
       }
-    };
+    })
   }
 }
