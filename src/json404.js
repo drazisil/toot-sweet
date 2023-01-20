@@ -1,4 +1,4 @@
-import { RequestWithBody } from "../app.js";
+import { RequestWithBody } from "../RequestInfo.js";
 
 /**
  *

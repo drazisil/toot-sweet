@@ -34,7 +34,7 @@ export class WebFingerAccountManager {
           {
             rel: 'self',
             type: 'application/activity+json',
-            href: 'https://mc.drazisil.com/users/drazi'
+            href: 'https://mc.drazisil.com/peopledrazi'
           }
         ]
       }
@@ -47,7 +47,7 @@ export class WebFingerAccountManager {
           {
             rel: 'self',
             type: 'application/activity+json',
-            href: 'https://mc.drazisil.com/users/drazi'
+            href: 'https://mc.drazisil.com/people/self'
           }
         ]
       }
@@ -112,8 +112,6 @@ function parseAccountType(account, host) {
 function getAccountAndType(requestedResource, host) {
   const account = (requestedResource.split(':', 2).pop()) ?? '';
 
-  log.info(account);
-
   /** @type {'local' | 'remote'} */
   let accountType;
 
@@ -142,7 +140,7 @@ export function handleWebFingerRequest(requestWithBody) {
   const requestedResource = getRequestedWebFingerResource(requestWithBody);
 
   if (requestedResource === null) {
-    log.error('Requested resource was not able to be parsed');
+    log.error({"reason": 'Requested resource was not able to be parsed'});
     requestWithBody.requestInfo.response.statusCode = 400;
     return requestWithBody.requestInfo.response.end('Requested resource was not able to be parsed');
   }
@@ -156,10 +154,6 @@ export function handleWebFingerRequest(requestWithBody) {
     accountAndType = getAccountAndType(requestedResource, host);
   }
 
-  if (accountAndType?.accountType === 'local') {
-    log.info(`Request for a local account: ${accountAndType.account}`);
-  }
-
   const accountManager = WebFingerAccountManager.getAccountManager()
 
   let cleanedRequestedResource = requestedResource
@@ -168,15 +162,12 @@ export function handleWebFingerRequest(requestWithBody) {
     cleanedRequestedResource = "acct:".concat(accountAndType.account.substring(1), accountAndType.account)
   }
 
-  log.info(cleanedRequestedResource)
-
   const accountRecord = accountManager.find(cleanedRequestedResource)
 
   if (typeof accountRecord === "undefined") {
-    log.error('Record not found');
+    log.error({"reason": "Record not found"});
     return json404(requestWithBody, 'Record not found');
   }
-  log.info(JSON.stringify(accountRecord))
   requestWithBody.requestInfo.response.setHeader('content-type', 'application/json')
   return requestWithBody.requestInfo.response.end(JSON.stringify(accountRecord))
 
@@ -196,11 +187,9 @@ function getRequestedWebFingerResource(requestWithBody) {
 
     const requestedResource = parsedURL.searchParams.get('resource');
 
-    log.info(requestedResource ?? '');
-
     return requestedResource;
   } catch (error) {
-    log.error(`Unable to parse requested resource: ${String(error)}`);
+    log.error({"reason": String(error)});
     throw error;
   }
 }

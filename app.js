@@ -6,97 +6,28 @@ import * as https from 'node:https'
 import log from './log.js'
 import { handleWebFingerRequest } from './src/webFinger.js'
 import { handleActivityStreamRequest } from './src/activityStream.js'
+import { randomUUID } from 'crypto'
+import { json404 } from './src/json404.js'
+import { RequestInfo, RequestWithBody } from './RequestInfo.js'
 
 
 /**
- * @class RequestInfo
+ * 
+ * @param {RequestWithBody} requestWithBody 
  */
-export class RequestInfo {
-  /** @type {http.IncomingHttpHeaders} */
-  headers;
+async function handlePeopleRequest(requestWithBody) {
+  const urlParts = requestWithBody.url.split("/")
+  
+  log.info({"message": "Request for person", "person": urlParts})
 
-  /** @type {string} */
-  method;
 
-  /** @type {string} */
-  url;
-
-  /** @type {http.ServerResponse} */
-  response;
-
-  /**
-   * 
-   * @param {http.IncomingHttpHeaders} headers 
-   * @param {string} method
-   * @param {string} url
-   * @param {http.ServerResponse} response 
-   */
-  constructor(headers, method = '', url = '', response) {
-    this.headers = headers
-    this.method = method
-    this.url = url
-    this.response = response
+  if (requestWithBody.requestInfo.headers['content-type'] === 'application/activity+json'
+    || requestWithBody.requestInfo.headers['accept']?.includes("application/activity+json")
+    || requestWithBody.requestInfo.url.includes('type=jsonTest')) {
+    handleActivityStreamRequest(requestWithBody)
   }
 
-  /**
-   * 
-   * @param {http.IncomingHttpHeaders} headers 
-   * @param {string | undefined} method 
-   * @param {string | undefined} url 
-   * @param {http.ServerResponse} response 
-   * @returns RequestInfo
-   */
-  static toRequestInfo(headers, method, url, response) {
-    return new RequestInfo(headers, method, url, response)
-  }
-
-  toString() {
-    return JSON.stringify({
-      headers: this.headers,
-      method: this.method,
-      url: this.url
-    })
-  }
-}
-
-/**
- * @class
- * @property {RequestInfo} requestInfo
- * @property {string} body
- */
-export class RequestWithBody {
-  /** @type {RequestInfo} */
-  requestInfo;
-
-  /** @type {string} */
-  body;
-
-  /**
-   * 
-   * @param {RequestInfo} requestInfo 
-   * @param {string} body 
-   */
-  constructor(requestInfo, body) {
-    this.requestInfo = requestInfo
-    this.body = body
-  }
-
-  /**
-   * 
-   * @param {RequestInfo} requestInfo 
-   * @param {string} body 
-   * @returns RequestWithBody
-   */
-  static toRequestWithBody(requestInfo, body) {
-    return new RequestWithBody(requestInfo, body)
-  }
-
-  toString() {
-    return JSON.stringify({
-      requestInfo: JSON.parse(this.requestInfo.toString()),
-      body: this.body
-    })
-  }
+  return json404(requestWithBody);
 }
 
 /**
@@ -104,20 +35,20 @@ export class RequestWithBody {
  * @param {RequestWithBody} requestWithBody 
  */
 async function handleRequest(requestWithBody) {
-  log.info(`Request: ${requestWithBody}}`)
+  log.info({"headers": requestWithBody.requestInfo.headers, "body": requestWithBody.body})
+  const { url: requestUrl } = requestWithBody
 
-  if (requestWithBody.requestInfo.url?.startsWith('/.well-known/webfinger?resource=acct:')) {
+  if (requestUrl.startsWith('/.well-known/webfinger?resource=acct:')) {
     // Handle WebFinger request
-    log.info('WebFinger')
-    handleWebFingerRequest(requestWithBody)
+    return handleWebFingerRequest(requestWithBody)
   }
 
-  if (requestWithBody.requestInfo.headers['content-type'] === 'application/activity+json'
-    || requestWithBody.requestInfo.headers['accept']?.includes("application/activity+json")
-    || requestWithBody.requestInfo.url.includes('type=jsonTest')) {
-    log.info('ActivityStream')
-    handleActivityStreamRequest(requestWithBody)
+  if (requestUrl.startsWith("/people")) {
+    return handlePeopleRequest(requestWithBody)  
   }
+
+  return json404(requestWithBody);
+
 }
 
 
@@ -138,8 +69,9 @@ function requestListener(request, response) {
   })
 
   request.on("end", () => {
+    const requestId = randomUUID()
     /** @type {RequestWithBody} */
-    const requestWithBody = RequestWithBody.toRequestWithBody(requestInfo, body)
+    const requestWithBody = RequestWithBody.toRequestWithBody(requestId, requestInfo, body)
 
     handleRequest(requestWithBody)
   })
@@ -155,7 +87,7 @@ let cert;
 try {
   cert = readFileSync('data/dev-crt.pem', { encoding: "utf8" })
 } catch (error) {
-  log.error(`Unable to read certificate file: ${String(error)}`)
+  log.error({ "reason": `Unable to read certificate file: ${String(error)}` })
   exitCode = -1
   process.exit(exitCode)
 }
@@ -166,7 +98,7 @@ let key;
 try {
   key = readFileSync('data/dev-key.pem', { encoding: "utf8" })
 } catch (error) {
-  log.error(`Unable to read certificate file`)
+  log.error({ "reason": `Unable to read certificate file` })
   exitCode = -1
   process.exit(exitCode)
 
@@ -180,11 +112,11 @@ const server = https.createServer({
 }, requestListener)
 
 server.listen(port, () => {
-  log.info(`Server listening on port ${port}`)
+  log.info(Object({ "server": { "status": "listening", "port": String(port) } }))
 })
 
 server.on("error", (/** @type {unknown} */ err) => {
-  log.error(`Error in server: ${String(err)}`)
+  log.error(Object({ "server": { "status": "errored", "reason": String(err) } }))
 })
 
 

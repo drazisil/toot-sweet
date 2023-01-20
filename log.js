@@ -4,23 +4,23 @@ import { inspect } from "node:util"
 const log = function() {
     /** 
      * @param {'info' | 'error'} level
-     * @param {unknown} msg
+     * @param {object} msg
      * @returns {string}
      */
 
     const formatMsg = (level, msg) => {        
-        return `{"level": "${level}", "hostname": "${hostname}", "message": ${msg}`
+        return `{"level": "${level}", "hostname": "${hostname}", "message": ${inspect(msg)}`
     }
 
     return {
     /** 
-     * @param {string} msg
+     * @param {object} msg
      */
     info: (msg) => {
       console.log(formatMsg('info', msg))
     }, 
     /** 
-     * @param {string} msg
+     * @param {object} msg
      */
     error: (msg) => {
         console.error(formatMsg('error', msg))
