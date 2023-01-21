@@ -16,7 +16,6 @@
     "typescript": "^4.9.4"
   },
   "dependencies": {
-    "deug": "0.0.1-security",
     "http-signature": "1.3.6"
   },
   "packageManager": "yarn@3.3.1"

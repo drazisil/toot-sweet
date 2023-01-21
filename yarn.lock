@@ -53,13 +53,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"deug@npm:0.0.1-security":
-  version: 0.0.1-security
-  resolution: "deug@npm:0.0.1-security"
-  checksum: 9fe955ce900e8cb98c79ea42c5360b341ae31eeebaa0758036408616c35984d3c8bcaf2d5417083162a44880c214d8c86397a68f4a417fb26fb5923701703320
-  languageName: node
-  linkType: hard
-
 "ecc-jsbn@npm:~0.1.1":
   version: 0.1.2
   resolution: "ecc-jsbn@npm:0.1.2"
@@ -165,7 +158,6 @@ __metadata:
   resolution: "toot-sweet@workspace:."
   dependencies:
     "@types/node": ^18.11.18
-    deug: 0.0.1-security
     http-signature: 1.3.6
     prettier: 2.8.1
     typescript: ^4.9.4
