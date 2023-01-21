@@ -1,4 +1,4 @@
-import log from './log.js';
+import log from './src/log.js';
 
 /**
  * @class RequestInfo

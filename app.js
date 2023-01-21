@@ -2,7 +2,7 @@ import bootStrap from './src/bootstrap.js'
 
 import { readFileSync } from 'fs'
 import * as https from 'node:https'
-import log from './log.js'
+import log from './src/log.js'
 import { handleWebFingerRequest } from './src/webFinger.js'
 import { randomUUID } from 'crypto'
 import { json404 } from './src/json404.js'
@@ -16,9 +16,6 @@ import { PeopleConnector } from './src/PeopleConnector.js'
  */
 async function handlePeopleRequest(requestWithBody) {
   const parts = requestWithBody.url.split("/")
-
-  log.info({ "message": "Request for person", "person": parts })
-
   const people = new PeopleConnector()
 
   const person = people.findPerson(parts[0])
