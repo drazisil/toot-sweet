@@ -1,7 +1,6 @@
 import bootStrap from './src/bootstrap.js'
 
 import { readFileSync } from 'fs'
-import * as http from 'node:http'
 import * as https from 'node:https'
 import log from './log.js'
 import { handleWebFingerRequest } from './src/webFinger.js'
@@ -12,8 +11,8 @@ import { PeopleConnector } from './src/PeopleConnector.js'
 
 
 /**
- * 
- * @param {RequestWithBody} requestWithBody 
+ *
+ * @param {RequestWithBody} requestWithBody
  */
 async function handlePeopleRequest(requestWithBody) {
   const parts = requestWithBody.url.split("/")
@@ -34,8 +33,8 @@ async function handlePeopleRequest(requestWithBody) {
 }
 
 /**
- * 
- * @param {RequestWithBody} requestWithBody 
+ *
+ * @param {RequestWithBody} requestWithBody
  */
 async function handleRequest(requestWithBody) {
   log.info({ "method": requestWithBody.requestInfo.method, "url": requestWithBody.url, "headers": requestWithBody.requestInfo.headers, "body": requestWithBody.body })
@@ -58,9 +57,9 @@ async function handleRequest(requestWithBody) {
 
 
 /**
- * 
- * @param {http.IncomingMessage} request 
- * @param {http.ServerResponse} response 
+ *
+ * @param {import("node:http").IncomingMessage} request
+ * @param {import("node:http").ServerResponse} response
  */
 function requestListener(request, response) {
   /** @type {RequestInfo} */
@@ -147,7 +146,7 @@ server.on("error", (/** @type {unknown} */ err) => {
 // //#region Methods
 // /**
 //  * Fetch an Actor object
-//  * @param {string} id 
+//  * @param {string} id
 //  * @returns {Promise<Application>}
 // */
 // async function fetchRemoteActor(id) {
@@ -161,7 +160,7 @@ server.on("error", (/** @type {unknown} */ err) => {
 // }
 
 // /**
-//  * 
+//  *
 //  * @type {express.RequestHandler}
 //  */
 // async function checkActivityPubRequest(req, res, next) {
@@ -184,7 +183,7 @@ server.on("error", (/** @type {unknown} */ err) => {
 // }
 
 // /**
-//  * 
+//  *
 //  * @type {express.ErrorRequestHandler}
 //  */
 // function errorHandler(err, req, res, next) {
