@@ -1,5 +1,4 @@
 import { readFileSync } from 'node:fs';
-import { RequestWithBody } from "../RequestInfo.js";
 import { ActivityStreamObject } from "./ActivityStreamObject.js";
 
 export class Person extends ActivityStreamObject {
@@ -26,14 +25,14 @@ export class Person extends ActivityStreamObject {
 }
 
 export class PeopleConnector {
-  baseUser = "https://mc.drazisil.com/people/drazi";
+  baseUser = "https://mc.drazisil.com";
 
   /** @type {Person[]} */
   people = []
 
   /**
-   * 
-   * @param {string} person 
+   *
+   * @param {string} person
    * @returns {Person | undefined}
    */
   findPerson(person) {
@@ -44,17 +43,17 @@ export class PeopleConnector {
 
   constructor() {
     const publicKeyPem = readFileSync('data/dev-key.pem', { encoding: "utf8" });
-    
+
     this.people.push({
       "@context": ["https://www.w3.org/ns/activitystreams", "https://w3id.org/security/v1"],
-      "id": this.baseUser,
+      "id": this.baseUser.concat("/people/drazi"),
       "type": "Person",
-      "name": "Drazi Test",
+      "name": "Drazi TootSweet",
       "preferredUsername": "drazi",
-      "inbox": this.baseUser.concat("/inbox"),
-      "outbox": this.baseUser.concat("/outbox"),
+      "inbox": this.baseUser.concat("/people/drazi/inbox"),
+      "outbox": this.baseUser.concat("/people/drazi/outbox"),
       "publicKey": {
-        "id": this.baseUser.concat("#main-key"),
+        "id": this.baseUser.concat("/people/drazi#main-key"),
         "owner": this.baseUser,
         "publicKeyPem": publicKeyPem
       }
