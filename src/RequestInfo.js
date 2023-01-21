@@ -1,4 +1,4 @@
-import log from './src/log.js';
+import log from './log.js';
 
 /**
  * @class RequestInfo
@@ -6,7 +6,7 @@ import log from './src/log.js';
 
 
 export class RequestInfo {
-  /** @type {http.IncomingHttpHeaders} */
+  /** @type {import("node:http").IncomingHttpHeaders} */
   headers;
 
   /** @type {string} */
@@ -15,15 +15,15 @@ export class RequestInfo {
   /** @type {string} */
   url;
 
-  /** @type {http.ServerResponse} */
+  /** @type {import("node:http").ServerResponse} */
   response;
 
   /**
    *
-   * @param {http.IncomingHttpHeaders} headers
+   * @param {import("node:http").IncomingHttpHeaders} headers
    * @param {string} method
    * @param {string} url
-   * @param {http.ServerResponse} response
+   * @param {import("node:http").ServerResponse} response
    * @throws {Error} - when url is undefined
    */
   constructor(headers, method = '', url = '', response) {
@@ -40,10 +40,10 @@ export class RequestInfo {
 
   /**
    *
-   * @param {http.IncomingHttpHeaders} headers
+   * @param {import("node:http").IncomingHttpHeaders} headers
    * @param {string | undefined} method
    * @param {string | undefined} url
-   * @param {http.ServerResponse} response
+   * @param {import("node:http").ServerResponse} response
    * @returns RequestInfo
    */
   static toRequestInfo(headers, method, url, response) {

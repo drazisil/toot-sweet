@@ -133,7 +133,7 @@ function getAccountAndType(requestedResource, host) {
 }
 /**
  *
- * @param {import("../RequestInfo.js").RequestWithBody} requestWithBody
+ * @param {import("./RequestInfo.js").RequestWithBody} requestWithBody
  */
 export function handleWebFingerRequest(requestWithBody) {
 
@@ -174,7 +174,7 @@ export function handleWebFingerRequest(requestWithBody) {
 }
 /**
  *
- * @param {import("../RequestInfo.js").RequestWithBody} requestWithBody
+ * @param {import("./RequestInfo.js").RequestWithBody} requestWithBody
  * @returns {string | null}
  * @throws {Error} - when unable to parse the resource parameter
  */

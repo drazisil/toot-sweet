@@ -6,7 +6,7 @@ import log from './src/log.js'
 import { handleWebFingerRequest } from './src/webFinger.js'
 import { randomUUID } from 'crypto'
 import { json404 } from './src/json404.js'
-import { RequestInfo, RequestWithBody } from './RequestInfo.js'
+import { RequestInfo, RequestWithBody } from './src/RequestInfo.js'
 import { PeopleConnector } from './src/PeopleConnector.js'
 
 

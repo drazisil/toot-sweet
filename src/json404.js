@@ -1,8 +1,6 @@
-import { RequestWithBody } from "../RequestInfo.js";
-
 /**
  *
- * @param {RequestWithBody} requestWithBody
+ * @param {import("./RequestInfo.js").RequestWithBody} requestWithBody
  * @param {string} [reason]
  */
 export function json404(requestWithBody, reason='Not found') {
