@@ -1,4 +1,4 @@
-import log from '../log.js';
+import log from './log.js';
 import { json404 } from './json404.js';
 
 /**
@@ -34,7 +34,7 @@ export class WebFingerAccountManager {
           {
             rel: 'self',
             type: 'application/activity+json',
-            href: 'https://mc.drazisil.com/peopledrazi'
+            href: 'https://mc.drazisil.com/people/drazi'
           }
         ]
       }
@@ -55,7 +55,7 @@ export class WebFingerAccountManager {
   }
 
   /**
-   * 
+   *
    * @returns {WebFingerAccountManager}
    */
   static getAccountManager() {
@@ -67,16 +67,16 @@ export class WebFingerAccountManager {
   }
 
   /**
-   * 
-   * @param {WebFingerAccount} newAccount 
+   *
+   * @param {WebFingerAccount} newAccount
    */
   add(newAccount) {
     this.accounts.push(newAccount)
-  
+
   }
   /**
-   * 
-   * @param {string} subject 
+   *
+   * @param {string} subject
    * @returns {WebFingerAccount | undefined}
    */
   find(subject) {
@@ -133,7 +133,7 @@ function getAccountAndType(requestedResource, host) {
 }
 /**
  *
- * @param {import('../app.js').RequestWithBody} requestWithBody
+ * @param {import("../RequestInfo.js").RequestWithBody} requestWithBody
  */
 export function handleWebFingerRequest(requestWithBody) {
 
@@ -174,7 +174,7 @@ export function handleWebFingerRequest(requestWithBody) {
 }
 /**
  *
- * @param {import('../app.js').RequestWithBody} requestWithBody
+ * @param {import("../RequestInfo.js").RequestWithBody} requestWithBody
  * @returns {string | null}
  * @throws {Error} - when unable to parse the resource parameter
  */
