@@ -18,3 +18,6 @@ node_modules
 
 # ignore logs
 *.log
+
+# ignore .vscode
+.vscode
