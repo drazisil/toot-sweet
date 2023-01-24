@@ -3,79 +3,41 @@ import bootStrap from './src/bootstrap.js'
 import { readFileSync } from 'fs'
 import * as https from 'node:https'
 import log from './src/log.js'
-import { handleWebFingerRequest } from './src/webFinger.js'
-import { randomUUID } from 'crypto'
 import { json404 } from './src/json404.js'
-import { RequestInfo, RequestWithBody } from './src/RequestInfo.js'
 import { PeopleConnector } from './src/PeopleConnector.js'
+import wellKnownRouter from "./src/routes/wellknown.js"
+import createExpress from "express"
+import pinoHttp from "pino-http"
 
+const app = createExpress()
+
+app.use(pinoHttp())
+
+const port = process.env["PORT"] ?? 443
+
+app.use(createExpress.json({"type": "application/activity+json"}))
+
+app.use("/.well-known", wellKnownRouter)
+
+app.use(createExpress.static("./public"))
 
 /**
  *
- * @param {RequestWithBody} requestWithBody
+ * @param {import("./src/RequestInfo.js").RequestWithBody} requestWithBody
  */
-async function handlePeopleRequest(requestWithBody) {
+export async function handlePeopleRequest(requestWithBody) {
   const parts = requestWithBody.url.split("/")
   const people = new PeopleConnector()
 
   const person = people.findPerson(parts[0])
 
   if (typeof person === "undefined") {
-    return json404(requestWithBody);
+    return json404(requestWithBody.requestInfo.response);
   }
 
   requestWithBody.requestInfo.response.setHeader("content-type", 'application/activity+json');
 
   return requestWithBody.requestInfo.response.end(JSON.stringify(person));
-}
-
-/**
- *
- * @param {RequestWithBody} requestWithBody
- */
-async function handleRequest(requestWithBody) {
-  log.info({ "method": requestWithBody.requestInfo.method, "url": requestWithBody.url, "headers": requestWithBody.requestInfo.headers, "body": requestWithBody.body })
-
-  if (requestWithBody.url.startsWith('/.well-known/webfinger?resource=acct:')) {
-    // Handle WebFinger request
-    return handleWebFingerRequest(requestWithBody)
-  }
-
-  requestWithBody.url = requestWithBody.url.substring(1)
-
-  if (requestWithBody.url.startsWith("people")) {
-    requestWithBody.url = requestWithBody.url.replace("people/", "")
-    return handlePeopleRequest(requestWithBody)
-  }
-
-  return json404(requestWithBody);
-
-}
-
-
-/**
- *
- * @param {import("node:http").IncomingMessage} request
- * @param {import("node:http").ServerResponse} response
- */
-function requestListener(request, response) {
-  /** @type {RequestInfo} */
-  const requestInfo = RequestInfo.toRequestInfo(request.headers, request.method, request.url, response)
-
-  let body = '';
-
-  request.setEncoding("utf8")
-  request.on("data", (/** @type {string} */ chunk) => {
-    body = body.concat(chunk)
-  })
-
-  request.on("end", () => {
-    const requestId = randomUUID()
-    /** @type {RequestWithBody} */
-    const requestWithBody = RequestWithBody.toRequestWithBody(requestId, requestInfo, body)
-
-    handleRequest(requestWithBody)
-  })
 }
 
 await bootStrap()
@@ -105,12 +67,10 @@ try {
 
 }
 
-const port = 443
-
 const server = https.createServer({
   cert,
   key
-}, requestListener)
+}, app)
 
 server.listen(port, () => {
   log.info(Object({ "server": { "status": "listening", "port": String(port) } }))
