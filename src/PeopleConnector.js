@@ -25,6 +25,10 @@ export class Person extends ActivityStreamObject {
 }
 
 export class PeopleConnector {
+  /** @type {PeopleConnector} */
+  static _instance
+
+
   baseUser = "https://mc.drazisil.com";
 
   /** @type {Person[]} */
@@ -58,5 +62,32 @@ export class PeopleConnector {
         "publicKeyPem": publicKeyPem
       }
     })
+
+    this.people.push({
+      "@context": ["https://www.w3.org/ns/activitystreams", "https://w3id.org/security/v1"],
+      "id": this.baseUser.concat("/people/self"),
+      "type": "Person",
+      "name": "mc.drazisil.com",
+      "preferredUsername": "self",
+      "inbox": this.baseUser.concat("/people/self/inbox"),
+      "outbox": this.baseUser.concat("/people/self/outbox"),
+      "publicKey": {
+        "id": this.baseUser.concat("/people/self#main-key"),
+        "owner": this.baseUser,
+        "publicKeyPem": publicKeyPem
+      }
+    })
   }
+
+    /**
+   *
+   * @returns {PeopleConnector}
+   */
+    static getPeopleConnector() {
+      if (typeof PeopleConnector._instance === "undefined") {
+        PeopleConnector._instance = new PeopleConnector()
+      }
+
+      return PeopleConnector._instance
+    }
 }
