@@ -19,6 +19,7 @@
     "typescript": "4.9.4"
   },
   "dependencies": {
+    "@small-tech/https": "5.0.2",
     "express": "4.18.2",
     "helmet": "6.0.1",
     "http-signature": "1.3.6",

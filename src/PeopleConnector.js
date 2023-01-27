@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { ActivityStreamObject } from "./ActivityStreamObject.js";
 
 export class Person extends ActivityStreamObject {
@@ -46,8 +45,6 @@ export class PeopleConnector {
   }
 
   constructor() {
-    const publicKeyPem = readFileSync('data/dev-key.pem', { encoding: "utf8" });
-
     this.people.push({
       "@context": ["https://www.w3.org/ns/activitystreams", "https://w3id.org/security/v1"],
       "id": this.baseUser.concat("/people/drazi"),
@@ -59,7 +56,7 @@ export class PeopleConnector {
       "publicKey": {
         "id": this.baseUser.concat("/people/drazi#main-key"),
         "owner": this.baseUser,
-        "publicKeyPem": publicKeyPem
+        "publicKeyPem": ""
       }
     })
 
@@ -74,7 +71,7 @@ export class PeopleConnector {
       "publicKey": {
         "id": this.baseUser.concat("/people/self#main-key"),
         "owner": this.baseUser,
-        "publicKeyPem": publicKeyPem
+        "publicKeyPem": ""
       }
     })
   }
