@@ -26,7 +26,7 @@ export function addExpressMiddleware(app) {
 
   app.use((req, res, next) => {
     const logLine = { "headers": JSON.stringify(req.headers), "body": JSON.stringify(req.body), "method": req.method, "url": req.url, "remoteHost": req.socket.remoteAddress ?? "unknown"}
-    Queue.getQueue().add(logLine)
+    Queue.getQueue().add({"timestamp": (new Date()).toISOString(), ...logLine})
     log.info(logLine)
     next()
   })

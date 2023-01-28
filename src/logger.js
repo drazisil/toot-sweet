@@ -8,7 +8,7 @@ const log = function() {
      */
 
     const formatMsg = (level, msg) => {
-        return `{"level": "${level}", "hostname": "${hostname}", "message": ${JSON.stringify(msg)}`
+        return `{"level": "${level}", "timestamp": ${(new Date()).toISOString()}, "hostname": "${hostname}", "message": ${JSON.stringify(msg)}`
     }
 
     return {
