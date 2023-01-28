@@ -1,6 +1,6 @@
 import express from "express"
 import { WebFingerAccountManager } from "../webFinger.js";
-import log from "../log.js"
+import log from "../logger.js"
 import { json404 } from "../json404.js";
 
 const router = express.Router()

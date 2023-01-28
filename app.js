@@ -1,5 +1,5 @@
 import https from '@small-tech/https'
-import log from './src/log.js'
+import log from './src/logger.js'
 import createExpress from "express"
 import { addExpressMiddleware } from './src/addExpressMiddleware.js'
 

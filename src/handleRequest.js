@@ -1,4 +1,4 @@
-import log from './log.js';
+import log from './logger.js';
 import { json404 } from './json404.js';
 import { handlePeopleRequest } from "./handlePeopleRequest";
 
