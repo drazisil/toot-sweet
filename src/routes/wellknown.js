@@ -1,9 +1,7 @@
 import express from "express"
 import { WebFingerAccountManager } from "../webFinger.js";
-import createLogger from "pino"
+import log from "../log.js"
 import { json404 } from "../json404.js";
-
-const log = createLogger()
 
 const router = express.Router()
 

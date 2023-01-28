@@ -1,8 +1,8 @@
 import wellKnownRouter from "./routes/wellknown.js";
 import peopleRouter from "./routes/people.js";
 import createExpress from "express";
-import pinoHttp from "pino-http"
 import helmet from "helmet";
+import log from "./log.js"
 
 /**
  * Add middlewhere to the Express app
@@ -15,9 +15,15 @@ export function addExpressMiddleware(app) {
 
   app.use(helmet())
 
-  app.use(pinoHttp())
+
+  app.use(createExpress.json({ "type": "application/json" }))
 
   app.use(createExpress.json({ "type": "application/activity+json" }));
+
+  app.use((req, res, next) => {
+    log.info({ "headers": req.headers, "body": req.body, "method": req.method, "url": req.url})
+    next()
+  })
 
   app.use("/.well-known", wellKnownRouter);
 
