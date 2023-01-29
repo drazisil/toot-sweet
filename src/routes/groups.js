@@ -1,13 +1,14 @@
 import express from "express"
+import { Grouper } from "../Grouper.js"
 
 const router = express.Router()
 
 router.get("/getAll", (request, response) => {
-  const logQueue = Queue.getQueue()
+  const groups = Grouper.getGrouper()
 
   response.setHeader('content-type', 'application/json')
 
-  const allItems = logQueue.getAll()
+  const allItems = groups.getAll()
 
   return response.end(JSON.stringify(allItems))
 })

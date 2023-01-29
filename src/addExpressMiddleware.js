@@ -1,10 +1,13 @@
 import wellKnownRouter from "./routes/wellknown.js";
 import peopleRouter from "./routes/people.js";
 import logRouter from "./routes/log.js"
+import groupsRouter from "./routes/groups.js"
 import createExpress from "express";
 import helmet from "helmet";
 import log from "./logger.js"
 import { Queue } from "./Queue.js";
+import { Grouper } from "./Grouper.js";
+import { Activity } from "./Activity.js";
 
 /**
  * Add middlewhere to the Express app
@@ -13,18 +16,37 @@ import { Queue } from "./Queue.js";
 
 export function addExpressMiddleware(app) {
 
+  const grouper = Grouper.getGrouper()
+
+  grouper.createGroup("activityStreamsInbound")
+
   app.disable('x-powered-by')
 
   app.use(helmet())
-
 
   app.use(createExpress.json({ "type": "application/json" }))
 
   app.use(createExpress.json({ "type": "application/activity+json" }));
 
+  app.use((request, response, next) => {
+    if (request.headers["content-type"]?.includes("application/activity+json")) {
+      const inboundActivity = Activity.fromRequest(request)
+
+      if (inboundActivity.type !== "Delete") {
+        grouper.addToGroup("activityStreamsInbound", inboundActivity)
+      }
+
+    }
+    next()
+  })
+
   app.use("/log", logRouter);
 
+  app.use("/groups", groupsRouter);
+
   app.use(requestLogger)
+
+  app.use
 
   app.use("/.well-known", wellKnownRouter);
 

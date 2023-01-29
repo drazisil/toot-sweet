@@ -1,6 +1,10 @@
-import { ActivityStreamObject } from "./ActivityStreamObject.js";
+export class Link  {
+  /** @type {string | string[]} */
+  "@context" = ["https://www.w3.org/ns/activitystreams"];
+  /** @type {string} */
+  id = "";
+  /** @type {string} */
 
-export class Link extends ActivityStreamObject {
   href = ""
 
   hreflang = "en"
@@ -15,7 +19,6 @@ export class Link extends ActivityStreamObject {
    * @param {string} href
    */
   constructor(name, href) {
-    super()
     this.name = name
     this.href = href
   }
