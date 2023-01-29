@@ -10,10 +10,19 @@ export class Collection extends ActivityStreamObject {
 
   toString() {
     return JSON.stringify({
-      "@context": this["@context"],
-      "type": "Collection",
       "id": this.id,
+      "type": "Collection",
       "items": this.items
     })
   }
+
+  toStringWithContext() {
+    return JSON.stringify({
+      "@context": this["@context"],
+      "id": this.id,
+      "type": "Collection",
+      "items": this.items
+    })
+  }
+
 }

@@ -49,6 +49,20 @@ export class Activity extends ActivityStreamObject {
       "headerMethod": this.headerMethod,
       "headerUrl": this.headerUrl,
       "headerSig": this.headerSig,
+      "id": this.id,
+      "type": "Link",
+      "actor": this.actor,
+      "to": this.to,
+      "object": this.object,
+      "signature": this.signature
+    })
+  }
+
+  toStringWithContext() {
+    return JSON.stringify({
+      "headerMethod": this.headerMethod,
+      "headerUrl": this.headerUrl,
+      "headerSig": this.headerSig,
       "@context": this["@context"],
       "id": this.id,
       "type": "Link",
@@ -58,4 +72,5 @@ export class Activity extends ActivityStreamObject {
       "signature": this.signature
     })
   }
+
 }
