@@ -24,24 +24,32 @@ export function addExpressMiddleware(app) {
 
   app.use("/log", logRouter);
 
-  app.use((req, res, next) => {
-    const logLine = { "headers": JSON.stringify(req.headers), "body": JSON.stringify(req.body), "method": req.method, "url": req.url, "remoteHost": req.socket.remoteAddress ?? "unknown"}
-    Queue.getQueue().add({"timestamp": (new Date()).toISOString(), ...logLine})
-    log.info(logLine)
-    next()
-  })
+  app.use(requestLogger)
 
   app.use("/.well-known", wellKnownRouter);
 
   app.use("/people", peopleRouter);
 
 
+
   app.use(createExpress.static("./public"));
 
   app.use((req, res, next) => {
     const logLine = { "error": "not found", "method": req.method, "url": req.url}
-    Queue.getQueue().add(logLine)
+    // Queue.getQueue().add(logLine)
     log.info(logLine)
     next()
   })
 }
+/**
+ *
+ * @param {import("express-serve-static-core").Request} req
+ * @param {import("express-serve-static-core").Response} res
+ * @param {import("express-serve-static-core").NextFunction} next
+ */
+function requestLogger(req, res, next) {
+    const logLine = { "headers": JSON.stringify(req.headers), "body": JSON.stringify(req.body), "method": req.method, "url": req.url, "remoteHost": req.socket.remoteAddress ?? "unknown" };
+    Queue.getQueue().add({ "timestamp": (new Date()).toISOString(), ...logLine });
+    log.info(logLine);
+    next();
+  }
