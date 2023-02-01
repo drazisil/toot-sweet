@@ -57,11 +57,11 @@ export class WebFingerAccountManager {
    * @returns {WebFingerAccountManager}
    */
   static getAccountManager() {
-    if (typeof WebFingerAccountManager._instance === "undefined") {
+    if (!WebFingerAccountManager._instance) {
       WebFingerAccountManager._instance = new WebFingerAccountManager()
     }
-
-    return WebFingerAccountManager._instance
+    const self = WebFingerAccountManager._instance
+    return self
   }
 
   /**

@@ -20,6 +20,8 @@ export function addExpressMiddleware(app) {
 
   grouper.createGroup("activityStreamsInbound")
 
+  grouper.createGroup("actorsSeen")
+
   app.disable('x-powered-by')
 
   app.use(helmet())
@@ -35,6 +37,7 @@ export function addExpressMiddleware(app) {
       if (inboundActivity.type !== "Delete") {
         grouper.addToGroup("activityStreamsInbound", inboundActivity)
       }
+      grouper.addToGroup("actorsSeen", inboundActivity.actor)
 
     }
     next()
@@ -46,13 +49,12 @@ export function addExpressMiddleware(app) {
 
   app.use(requestLogger)
 
-  app.use
-
   app.use("/.well-known", wellKnownRouter);
 
   app.use("/people", peopleRouter);
 
-
+  // This needs to redirect to /people
+  app.use("/users", peopleRouter);
 
   app.use(createExpress.static("./public"));
 
@@ -72,6 +74,5 @@ export function addExpressMiddleware(app) {
 function requestLogger(req, res, next) {
     const logLine = { "headers": JSON.stringify(req.headers), "body": JSON.stringify(req.body), "method": req.method, "url": req.url, "remoteHost": req.socket.remoteAddress ?? "unknown" };
     Queue.getQueue().add({ "timestamp": (new Date()).toISOString(), ...logLine });
-    log.info(logLine);
     next();
   }

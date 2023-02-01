@@ -1,7 +1,7 @@
 import { ActivityStreamObject } from "./ActivityStreamObject.js";
 
 export class Activity extends ActivityStreamObject {
-  actor = undefined
+  actor = ":"
 
   object = undefined
 

@@ -1,9 +1,9 @@
+import { createPublicKey } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { ActivityStreamObject } from "./ActivityStreamObject.js";
+import { Grouper } from "./Grouper.js";
 
 export class Person extends ActivityStreamObject {
-  /** @type {string} */
-  name = "";
-
   /** @type {string} */
   preferredUsername = ""
 
@@ -23,20 +23,38 @@ export class Person extends ActivityStreamObject {
   }
 }
 
+/**
+ * @global
+ * @typedef {{
+ *    ["@context"]: string | string[];
+ *    "preferredUsername": string;
+ *    "id": string;
+ *    "type": string;
+ *    "name": string;
+ *    "inbox": string;
+ *    "outbox": string;
+ *    "publicKey": {
+ *      "id": string;
+ *      "owner": string;
+ *      "publicKeyPem": string;
+ *    };
+ * }} PersonRecord
+ */
+
 export class PeopleConnector {
   /** @type {PeopleConnector} */
   static _instance
 
 
-  baseUser = "https://mc.drazisil.com";
+  personURIBase = "https://mc.drazisil.com";
 
-  /** @type {Person[]} */
+  /** @type {PersonRecord[]} */
   people = []
 
   /**
    *
    * @param {string} person
-   * @returns {Person | undefined}
+   * @returns {PersonRecord | undefined}
    */
   findPerson(person) {
     return this.people.find(p => {
@@ -45,35 +63,44 @@ export class PeopleConnector {
   }
 
   constructor() {
-    this.people.push({
-      "@context": ["https://www.w3.org/ns/activitystreams", "https://w3id.org/security/v1"],
-      "id": this.baseUser.concat("/people/drazi"),
-      "type": "Person",
-      "name": "Drazi TootSweet",
-      "preferredUsername": "drazi",
-      "inbox": this.baseUser.concat("/people/drazi/inbox"),
-      "outbox": this.baseUser.concat("/people/drazi/outbox"),
-      "publicKey": {
-        "id": this.baseUser.concat("/people/drazi#main-key"),
-        "owner": this.baseUser,
-        "publicKeyPem": ""
-      }
-    })
+
+    this.addPerson("drazi");
+
+    this.addPerson("self");
+  }
+
+  /**
+   * Add a user to the internal list
+   * @param {string} personId
+   * @param {string} [personName]
+   */
+  addPerson(personId, personName=undefined) {
+    const privateKey = readFileSync("data/global/production/account-identity.pem", "utf8")
+
+    const publicKeyPem = createPublicKey(privateKey).export({ format: "pem", type: "pkcs1" }).toString("utf8")
+
+    /** @type {string} */
+    personName = personName ?? personId
 
     this.people.push({
       "@context": ["https://www.w3.org/ns/activitystreams", "https://w3id.org/security/v1"],
-      "id": this.baseUser.concat("/people/self"),
+      "id": this.personURIBase.concat(`/people/${personId}`),
       "type": "Person",
-      "name": "mc.drazisil.com",
-      "preferredUsername": "self",
-      "inbox": this.baseUser.concat("/people/self/inbox"),
-      "outbox": this.baseUser.concat("/people/self/outbox"),
+      "name": personName,
+      "preferredUsername": personId,
+      "inbox": this.personURIBase.concat(`/people/${personId}/inbox`),
+      "outbox": this.personURIBase.concat(`/people/${personId}/outbox`),
       "publicKey": {
-        "id": this.baseUser.concat("/people/self#main-key"),
-        "owner": this.baseUser,
-        "publicKeyPem": ""
+        "id": this.personURIBase.concat(`people/${personId}#main-key`),
+        "owner": this.personURIBase,
+        "publicKeyPem": publicKeyPem
       }
-    })
+    });
+
+    const grouper = Grouper.getGrouper();
+
+    grouper.createGroup(`${personId}.inbox`);
+    
   }
 
     /**
@@ -81,10 +108,11 @@ export class PeopleConnector {
    * @returns {PeopleConnector}
    */
     static getPeopleConnector() {
-      if (typeof PeopleConnector._instance === "undefined") {
+      if (!PeopleConnector._instance) {
         PeopleConnector._instance = new PeopleConnector()
       }
 
-      return PeopleConnector._instance
+      const self = PeopleConnector._instance
+      return self
     }
 }

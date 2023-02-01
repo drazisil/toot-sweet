@@ -6,10 +6,11 @@ export class Queue {
   items = []
 
   static getQueue() {
-    if (typeof Queue._instance === "undefined") {
+    if (!Queue._instance) {
       Queue._instance = new Queue()
     }
-    return Queue._instance
+    const self = Queue._instance
+    return self
   }
 
   /**
