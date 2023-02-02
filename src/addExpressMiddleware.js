@@ -22,6 +22,8 @@ export function addExpressMiddleware(app) {
 
   grouper.createGroup("actorsSeen")
 
+  grouper.createGroup("remoteActors")
+
   app.disable('x-powered-by')
 
   app.use(helmet())

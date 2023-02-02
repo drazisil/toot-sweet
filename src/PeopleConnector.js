@@ -2,6 +2,7 @@ import { createPublicKey } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { ActivityStreamObject } from "./ActivityStreamObject.js";
 import { Grouper } from "./Grouper.js";
+import log from "./logger.js";
 
 export class Person extends ActivityStreamObject {
   /** @type {string} */
@@ -100,7 +101,7 @@ export class PeopleConnector {
     const grouper = Grouper.getGrouper();
 
     grouper.createGroup(`${personId}.inbox`);
-    
+
   }
 
     /**
@@ -115,4 +116,20 @@ export class PeopleConnector {
       const self = PeopleConnector._instance
       return self
     }
+}
+
+/**
+ * Fetch an Actor object
+ * @param {string} id
+ * @returns {Promise<Person>}
+*/
+export async function fetchRemoteActor(id) {
+  return fetch(new URL(id), {
+    headers: [["Accept", "application/activity+json"]]
+  })
+    .then(res => res.json())
+    .catch(err => {
+      log.error(err)
+      throw new Error(`Unable to fetch actor`)
+    })
 }

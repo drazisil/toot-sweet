@@ -3,7 +3,8 @@ import { ActivityStreamObject } from "./ActivityStreamObject.js";
 export class Activity extends ActivityStreamObject {
   actor = ":"
 
-  object = undefined
+  /** @type {ActivityStreamObject} */
+  object = new ActivityStreamObject()
 
   target = undefined
 
@@ -17,11 +18,13 @@ export class Activity extends ActivityStreamObject {
   signature = undefined
 
   // This is a custom property
-  headerSig = ""
+  headerHostname = ""
 
   headerMethod = ""
 
   headerUrl = ""
+
+  headerSig = ""
 
   /**
    *
@@ -31,6 +34,7 @@ export class Activity extends ActivityStreamObject {
     const { body } = request
     const newActivity = new Activity()
 
+    newActivity.headerHostname = request.hostname
     newActivity.headerMethod = request.method
     newActivity.headerUrl = request.url
     newActivity.headerSig = request.get("signature") ?? ""
@@ -46,6 +50,7 @@ export class Activity extends ActivityStreamObject {
 
   toString() {
     return JSON.stringify({
+      "headerHostname": this.headerHostname,
       "headerMethod": this.headerMethod,
       "headerUrl": this.headerUrl,
       "headerSig": this.headerSig,

@@ -55,8 +55,8 @@ export class ActivityStreamObject {
   /** @type {string=} */
   startTime = undefined
 
-  /** @type {string=} */
-  summary = undefined
+  /** @type {string | null} */
+  summary = null
 
   /** @type {string=} */
   tag = undefined
