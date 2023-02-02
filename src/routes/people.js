@@ -5,7 +5,7 @@ import { json404 } from "../json404.js";
 import { fetchRemoteActor, PeopleConnector } from "../PeopleConnector.js";
 import { readFileSync } from "node:fs";
 import log from "../logger.js";
-import { sendActivity } from "../sendActivity";
+import { sendActivity } from "../sendActivity.js";
 
 const router = express.Router()
 
@@ -16,8 +16,7 @@ const router = express.Router()
 // * post to an inbox
 // * get a message
 
-router.all("/:personId/:collectionName?", async (request, response) => {
-  const requestMethod = request.method
+router.post("/:personId/:collectionName", async (request, response) => {
   const personId = request.params.personId
   const collectionName = request.params.collectionName
   const acceptType = request.headers.accept
@@ -36,53 +35,77 @@ router.all("/:personId/:collectionName?", async (request, response) => {
     return json404(response, "Person not found")
   }
 
-  if (collectionName && requestMethod === "POST") {
-    // Look for, or create a collection.
-    const inboundActivity = Activity.fromRequest(request)
+  await handlePOSTToCollection(request, personId, collectionName, person);
+})
 
-    const grouper = Grouper.getGrouper()
+router.get("/:personId/", async (request, response) => {
+  const personId = request.params.personId
+  const acceptType = request.headers.accept
 
-    if (inboundActivity.type !== "Delete") {
-      grouper.addToGroup(`${personId}.${collectionName}`, inboundActivity)
+  response.setHeader('content-type', 'text/html')
 
-      log.info({ "requestedActorURI": inboundActivity.actor })
-
-
-      const remoteActor = await fetchRemoteActor(inboundActivity.actor)
-
-      const remoteActorInboxURL = new URL(remoteActor.inbox)
-
-      grouper.addToGroup("remoteActors", remoteActor)
-
-      log.info({ "remoteActorInboxHostname": remoteActorInboxURL.hostname })
-      log.info({ "remoteActorInboxPath": remoteActorInboxURL.pathname })
-
-      const respondingActivity = new Activity()
-      respondingActivity.id = person.id.concat("/statuses/1/activity")
-      respondingActivity.actor = person.id
-      respondingActivity.type = "Create"
-      respondingActivity.object.id = person.id.concat("/statuses/1")
-      respondingActivity.object.type = "Note"
-      respondingActivity.object.inReplyTo = inboundActivity.id
-      respondingActivity.object.content = "Nope"
-      respondingActivity.to = inboundActivity.actor
-      respondingActivity.headerHostname = remoteActorInboxURL.hostname
-      respondingActivity.headerMethod = "POST"
-      respondingActivity.headerUrl = remoteActorInboxURL.pathname
-
-      const privateKey = readFileSync("data/global/production/account-identity.pem", "utf8")
-
-      sendActivity(respondingActivity, privateKey, person, grouper);
-    }
-
+  if (acceptType?.includes("application/activity+json")) {
+    response.setHeader('content-type', 'application/json')
   }
 
-  // Otherwise...
+  const peopleConnector = PeopleConnector.getPeopleConnector()
+
+  const person = peopleConnector.findPerson(personId)
+
+  if (typeof person === "undefined") {
+    return json404(response, "Person not found")
+  }
+
   response.setHeader('content-type', 'application/json')
 
   return response.end(JSON.stringify(person))
 })
 
-
 export default router
+
+/**
+ *
+ * @param {import("express-serve-static-core").Request} request
+ * @param {string} personId
+ * @param {string} collectionName
+ * @param {import("../PeopleConnector.js").PersonRecord} person
+ */
+async function handlePOSTToCollection(request, personId, collectionName, person) {
+  const inboundActivity = Activity.fromRequest(request);
+
+  const grouper = Grouper.getGrouper();
+
+  if (inboundActivity.type !== "Delete") {
+    grouper.addToGroup(`${personId}.${collectionName}`, inboundActivity);
+
+    log.info({ "requestedActorURI": inboundActivity.actor });
+
+
+    const remoteActor = await fetchRemoteActor(inboundActivity.actor);
+
+    const remoteActorInboxURL = new URL(remoteActor.inbox);
+
+    grouper.addToGroup("remoteActors", remoteActor);
+
+    log.info({ "remoteActorInboxHostname": remoteActorInboxURL.hostname });
+    log.info({ "remoteActorInboxPath": remoteActorInboxURL.pathname });
+
+    const respondingActivity = new Activity();
+    respondingActivity.id = person.id.concat("/statuses/1/activity");
+    respondingActivity.actor = person.id;
+    respondingActivity.type = "Create";
+    respondingActivity.object.id = person.id.concat("/statuses/1");
+    respondingActivity.object.type = "Note";
+    respondingActivity.object.inReplyTo = inboundActivity.id;
+    respondingActivity.object.content = "Nope";
+    respondingActivity.to = inboundActivity.actor;
+    respondingActivity.headerHostname = remoteActorInboxURL.hostname;
+    respondingActivity.headerMethod = "POST";
+    respondingActivity.headerUrl = remoteActorInboxURL.pathname;
+
+    const privateKey = readFileSync("data/global/production/account-identity.pem", "utf8");
+
+    sendActivity(respondingActivity, privateKey, person, grouper);
+  }
+}
 
