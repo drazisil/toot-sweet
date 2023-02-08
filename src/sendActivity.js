@@ -3,16 +3,24 @@ import https from '@small-tech/https';
 import { createHash } from "node:crypto";
 
 /**
+ * @typedef {import("express-serve-static-core").Request} Request
+ * @typedef {import("node:http").RequestOptions} RequestOptions
+ * @typedef {import("./Grouper.js").Grouper} Grouper
+ * @typedef {import("./Activity.js").Activity} Activity
+ * @typedef {import("./PeopleConnector.js").PersonRecord} PersonRecord
+ */
+
+/**
  *
- * @param {import("./Activity.js").Activity} respondingActivity
+ * @param {Activity} respondingActivity
  * @param {string} sendingKey
- * @param {import("./PeopleConnector.js").PersonRecord} sendingActor
- * @param {import("./Grouper.js").Grouper} grouper
+ * @param {PersonRecord} sendingActor
+ * @param {Grouper} grouper
  */
 export function sendActivity(respondingActivity, sendingKey, sendingActor, grouper) {
   const postData = JSON.stringify(respondingActivity);
 
-  /** @type {import("node:https").RequestOptions} */
+  /** @type {RequestOptions} */
   const respondingRequestOptions = {
     host: respondingActivity.headerHostname,
     path: respondingActivity.headerUrl,

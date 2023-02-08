@@ -1,6 +1,16 @@
 import { ActivityStreamObject } from "./ActivityStreamObject.js";
 
-export class Activity extends ActivityStreamObject {
+/**
+ * @typedef {import("express-serve-static-core").Request} Request
+ */
+
+/**
+ *
+ *
+ * @class Activity
+ * @extends {ActivityStreamObject}
+ */
+class Activity extends ActivityStreamObject {
   actor = ":"
 
   /** @type {ActivityStreamObject} */
@@ -28,7 +38,7 @@ export class Activity extends ActivityStreamObject {
 
   /**
    *
-   * @param {import("express-serve-static-core").Request} request
+   * @param {Request} request
    */
   static fromRequest(request) {
     const { body } = request
@@ -79,3 +89,5 @@ export class Activity extends ActivityStreamObject {
   }
 
 }
+
+export { Activity}

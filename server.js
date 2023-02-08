@@ -26,7 +26,7 @@ try {
     log.error(Object({ "server": { "status": "errored", "reason": String(err) } }))
   })
 } catch (error) {
-  log.error({"reason": `Fatal error!: ${{error}}`})
+  log.error({ "reason": `Fatal error!: ${{ error }}` })
   process.exit(-1)
 }
 

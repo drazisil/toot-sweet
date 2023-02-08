@@ -3,9 +3,12 @@
   "version": "0.1.0",
   "description": "",
   "type": "module",
+  "exports": "./index.js",
   "scripts": {
-    "start": "node app.js",
-    "test": "c8 node --test"
+    "start": "node server.js",
+    "test": "c8 node --test",
+    "build": "tsc",
+    "lint": "eslint"
   },
   "keywords": [],
   "author": "",
