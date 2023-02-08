@@ -1,1 +1,13 @@
-localhost:80
+mc.drazisil.com:443
+
+###
+
+mc.drazisil.com:443/log/getAll
+
+###
+
+mc.drazisil.com:443/people/drazi
+
+###
+
+POST mc.drazisil.com:443/people/drazi/inbox
