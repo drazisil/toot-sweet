@@ -7,6 +7,11 @@ import { readFileSync } from "node:fs";
 import log from "../logger.js";
 import { sendActivity } from "../sendActivity.js";
 
+/**
+ * @typedef {import("express-serve-static-core").Request} Request
+ * @typedef {import("../PeopleConnector.js").PersonRecord} PersonRecord
+ */
+
 const router = express.Router()
 
 // Here at /people we can do a couple things
@@ -65,10 +70,10 @@ export default router
 
 /**
  *
- * @param {import("express-serve-static-core").Request} request
+ * @param {Request} request
  * @param {string} personId
  * @param {string} collectionName
- * @param {import("../PeopleConnector.js").PersonRecord} person
+ * @param {PersonRecord} person
  */
 async function handlePOSTToCollection(request, personId, collectionName, person) {
   const inboundActivity = Activity.fromRequest(request);
