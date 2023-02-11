@@ -10,7 +10,7 @@
     "start": "node server.js",
     "test": "c8 node --test",
     "build": "tsc",
-    "lint": "lint staged"
+    "lint": "lint-staged"
   },
   "keywords": [],
   "author": "",
