@@ -1,6 +1,6 @@
 import * as assert from "node:assert";
 import { describe, it } from "node:test";
-import { splitUrl } from "../src/urls.js";
+import { splitUrl } from "../lib/urls.js";
 
 describe("splitUrl()", () => {
   it("should return / when passed an empty string", () => {
