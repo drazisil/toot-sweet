@@ -11,7 +11,6 @@
         "strict": true,
         "noPropertyAccessFromIndexSignature": true,
         "declaration": true,
-        "emitDeclarationOnly": true
     },
     "exclude": [
         "node_modules",

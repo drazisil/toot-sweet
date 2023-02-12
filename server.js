@@ -9,6 +9,7 @@ import helmet from "helmet";
 import { Queue } from "./lib/Queue.js";
 import { Grouper } from "./lib/Grouper.js";
 import { Activity } from "./lib/Activity.js";
+import { logRequestMiddleware } from "./lib/logRequestMiddleware.js";
 
 const app = createExpress();
 
@@ -30,6 +31,8 @@ grouper.createGroup("remoteActors");
 app.disable("x-powered-by");
 
 app.use(helmet());
+
+app.use(logRequestMiddleware())
 
 app.use(express.json({ type: "application/json" }));
 
