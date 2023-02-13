@@ -10,6 +10,7 @@ import { Queue } from "./lib/Queue.js";
 import { Grouper } from "./lib/Grouper.js";
 import { Activity } from "./lib/Activity.js";
 import { logRequestMiddleware } from "./lib/logRequestMiddleware.js";
+import { connectDB } from "./lib/db.js";
 
 const app = createExpress();
 
@@ -81,6 +82,8 @@ app.use(errorHandler);
 try {
   const server = https.createServer(options, app);
 
+  await connectDB()
+
   server.listen(443, () => {
     log.info(Object({ server: { status: "listening" } }));
   });
@@ -89,7 +92,8 @@ try {
     log.error(Object({ server: { status: "errored", reason: String(err) } }));
   });
 } catch (error) {
-  log.error({ reason: `Fatal error!: ${{ error }}` });
+  console.error(error);
+  log.error({ reason: `Fatal error!: ${{ "error": String(error) }}` });
   process.exit(-1);
 }
 

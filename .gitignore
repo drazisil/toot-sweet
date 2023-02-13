@@ -21,3 +21,6 @@ node_modules
 
 # ignore coverage
 coverage
+
+.env
+!.env.example
