@@ -3,8 +3,8 @@ import log from "./lib/logger.js";
 import createExpress, * as express from "express";
 import wellKnownRouter from "./lib/routes/wellknown.js";
 import peopleRouter from "./lib/routes/people.js";
-import logRouter from "./lib/routes/log.js";
-import groupsRouter from "./lib/routes/groups.js";
+import apiRouter from "./lib/routes/api.js";
+import adminRouter from "./lib/routes/admin.js";
 import helmet from "helmet";
 import { Queue } from "./lib/Queue.js";
 import { Grouper } from "./lib/Grouper.js";
@@ -32,7 +32,7 @@ app.disable("x-powered-by");
 
 app.use(helmet());
 
-app.use(logRequestMiddleware())
+app.use(logRequestMiddleware());
 
 app.use(express.json({ type: "application/json" }));
 
@@ -50,9 +50,9 @@ app.use((request, response, next) => {
   next();
 });
 
-app.use("/log", logRouter);
+app.use("/api", apiRouter);
 
-app.use("/groups", groupsRouter);
+app.use("/admin", adminRouter);
 
 app.use(requestLogger);
 
@@ -63,14 +63,20 @@ app.use("/people", peopleRouter);
 // This needs to redirect to /people
 app.use("/users", peopleRouter);
 
+app.set("view engine", "ejs");
+
+app.get("/", (req, res) => {
+  res.render("index", { foo: "FOO" });
+});
+
+//  statis files
 app.use(createExpress.static("./public"));
 
-app.use((req, res, next) => {
-  const logLine = { error: "not found", method: req.method, url: req.url };
-  // Queue.getQueue().add(logLine)
-  log.info(logLine);
-  next();
-});
+// custom 404
+app.use(notFoundHandler);
+
+// custom error handler
+app.use(errorHandler);
 
 try {
   const server = https.createServer(options, app);
@@ -85,6 +91,38 @@ try {
 } catch (error) {
   log.error({ reason: `Fatal error!: ${{ error }}` });
   process.exit(-1);
+}
+
+/**
+ *
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} _next
+ */
+// eslint-disable-next-line no-unused-vars
+function notFoundHandler(req, res, _next) {
+  const logLine = { error: "not found", method: req.method, url: req.url };
+  log.info(logLine);
+  res.status(404).send("Sorry can't find that!");
+}
+
+/**
+ *
+ * @param {Error} err
+ * @param {import("express").Request} req
+ * @param {import("express").Response} res
+ * @param {import("express").NextFunction} _next
+ */
+// eslint-disable-next-line no-unused-vars
+function errorHandler(err, req, res, _next) {
+  const logLine = {
+    error: "server error",
+    method: req.method,
+    url: req.url,
+    stackTrace: err.stack,
+  };
+  log.error(logLine);
+  res.status(500).send("Something broke!");
 }
 
 /**
