@@ -11,8 +11,30 @@ import { Grouper } from "./lib/Grouper.js";
 import { Activity } from "./lib/Activity.js";
 import { logRequestMiddleware } from "./lib/logRequestMiddleware.js";
 import { connectDB } from "./lib/db.js";
+import * as Sentry from "@sentry/node";
+import * as Tracing from "@sentry/tracing";
+import { ProfilingIntegration } from "@sentry/profiling-node";
 
 const app = createExpress();
+
+
+Sentry.init({
+  dsn: "https://92f8e46fa8fc4ceaa113b6c57a70eb99@o1413557.ingest.sentry.io/4504277664661504",
+  integrations: [
+    // enable HTTP calls tracing
+    new Sentry.Integrations.Http({ tracing: true }),
+    // enable Express.js middleware tracing
+    new Tracing.Integrations.Express({ app }),
+    // Add profiling integration to list of integrations
+    new ProfilingIntegration()
+  ],
+
+  // Set tracesSampleRate to 1.0 to capture 100%
+  // of transactions for performance monitoring.
+  // We recommend adjusting this value in production
+  tracesSampleRate: 1.0,
+  profilesSampleRate: 1.0 // Profiling sample rate is relative to tracesSampleRate
+});
 
 export const ROOT_DOMAIN = "mc.drazisil.com";
 
@@ -32,6 +54,13 @@ grouper.createGroup("remoteActors");
 app.disable("x-powered-by");
 
 app.use(helmet());
+
+
+// RequestHandler creates a separate execution context using domains, so that every
+// transaction/span/breadcrumb is attached to its own Hub instance
+app.use(Sentry.Handlers.requestHandler());
+// TracingHandler creates a trace for every incoming request
+app.use(Sentry.Handlers.tracingHandler());
 
 app.use(logRequestMiddleware());
 
@@ -75,6 +104,18 @@ app.use(createExpress.static("./public"));
 
 // custom 404
 app.use(notFoundHandler);
+
+app.use(
+  Sentry.Handlers.errorHandler({
+    shouldHandleError(error) {
+      // Capture all 404 and 500 errors
+      if (error.status === 404 || error.status === 500) {
+        return true;
+      }
+      return false;
+    },
+  })
+);
 
 // custom error handler
 app.use(errorHandler);
