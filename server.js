@@ -112,9 +112,6 @@ app.use(createExpress.static("./public"));
 // custom 404
 app.use(notFoundHandler);
 
-// custom error handler
-app.use(errorHandler);
-
 try {
   app.use(
     Sentry.Handlers.errorHandler({
@@ -135,6 +132,9 @@ try {
       },
     })
   );
+
+  // custom error handler
+  app.use(errorHandler);
 
   const server = https.createServer(options, app);
 
@@ -221,14 +221,14 @@ async function getBody(request, response, next) {
   let body = ""
 
   const bodyPromise = new Promise((resolve, reject) => {
-      request.on('data', (chunk) => {
-          bodyChunks.push(chunk);
-      })
-      request.on('end', () => {
-          body = bodyChunks.toString()
-          resolve(body)
-      });
-      request.on("error", (err) => { reject(err) })
+    request.on('data', (chunk) => {
+      bodyChunks.push(chunk);
+    })
+    request.on('end', () => {
+      body = bodyChunks.toString()
+      resolve(body)
+    });
+    request.on("error", (err) => { reject(err) })
   })
   request.body = bodyPromise
   next()
