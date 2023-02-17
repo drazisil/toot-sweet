@@ -142,13 +142,14 @@ try {
  *
  * @param {import("express").Request} req
  * @param {import("express").Response} res
- * @param {import("express").NextFunction} _next
+ * @param {import("express").NextFunction} next
  */
 // eslint-disable-next-line no-unused-vars
-function notFoundHandler(req, res, _next) {
+function notFoundHandler(req, res, next) {
   const logLine = { error: "not found", method: req.method, url: req.url };
   log.info(logLine);
   res.status(404).send("Sorry can't find that!");
+  next()
 }
 
 /**
