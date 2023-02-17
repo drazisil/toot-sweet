@@ -20,6 +20,7 @@ const app = createExpress();
 /**
  * @typedef {import("express-serve-static-core").Request} Request
  * @typedef {import("express-serve-static-core").Response} Response
+ * @typedef {import("express-serve-static-core").NextFunction} NextFunction
  */
 
 
@@ -67,25 +68,11 @@ app.use(Sentry.Handlers.requestHandler());
 // TracingHandler creates a trace for every incoming request
 app.use(Sentry.Handlers.tracingHandler());
 
-app.use(logRequestMiddleware());
+app.use(logRequestMiddleware);
 
 app.use(getBody)
 
-// app.use(express.json({ type: "application/json" }));
-
-// app.use(express.json({ type: "application/activity+json" }));
-
-app.use(async (request, response, next) => {
-  if (request.headers["content-type"]?.includes("application/activity+json")) {
-    const inboundActivity = await Activity.fromRequest(request);
-
-    if (inboundActivity.type !== "Delete") {
-      grouper.addToGroup("activityStreamsInbound", inboundActivity);
-    }
-    grouper.addToGroup("actorsSeen", inboundActivity.actor);
-  }
-  next();
-});
+app.use(logActivities);
 
 app.use("/api", apiRouter);
 
@@ -151,6 +138,26 @@ try {
   console.error(error);
   log.error({ reason: `Fatal error!: ${{ "error": String(error) }}` });
   process.exit(-1);
+}
+
+/**
+ *
+ *
+ * @author Drazi Crendraven
+ * @param {Request} request
+ * @param {Response} response
+ * @param {NextFunction} next
+ */
+async function logActivities (request, response, next) {
+  if (request.headers["content-type"]?.includes("application/activity+json")) {
+    const inboundActivity = await Activity.fromRequest(request);
+
+    if (inboundActivity.type !== "Delete") {
+      grouper.addToGroup("activityStreamsInbound", inboundActivity);
+    }
+    grouper.addToGroup("actorsSeen", inboundActivity.actor);
+  }
+  next();
 }
 
 /**
