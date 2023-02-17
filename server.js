@@ -175,7 +175,7 @@ function errorHandler(err, req, res, next) {
     stackTrace: err.stack,
   };
   log.error(logLine);
-  err.status - 500
+  err.status = 500
   res.status(500).send("Something broke!");
   next(err)
 }
