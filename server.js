@@ -1,6 +1,6 @@
 import https from "@small-tech/https";
 import log from "./lib/logger.js";
-import createExpress, * as express from "express";
+import createExpress from "express";
 import wellKnownRouter from "./lib/routes/wellknown.js";
 import peopleRouter from "./lib/routes/people.js";
 import apiRouter from "./lib/routes/api.js";
@@ -75,9 +75,9 @@ app.use(getBody)
 
 // app.use(express.json({ type: "application/activity+json" }));
 
-app.use((request, response, next) => {
+app.use(async (request, response, next) => {
   if (request.headers["content-type"]?.includes("application/activity+json")) {
-    const inboundActivity = Activity.fromRequest(request);
+    const inboundActivity = await Activity.fromRequest(request);
 
     if (inboundActivity.type !== "Delete") {
       grouper.addToGroup("activityStreamsInbound", inboundActivity);
@@ -119,6 +119,14 @@ try {
   app.use(
     Sentry.Handlers.errorHandler({
       shouldHandleError(error) {
+
+        const logLine = {
+          error: "(Sentry) server error",
+          errCode: error.status,
+          stackTrace: error.stack,
+        };
+        log.error(logLine);
+
         // Capture all 404 and 500 errors
         if (error.status === 404 || error.status === 500) {
           return true;
@@ -175,7 +183,6 @@ function errorHandler(err, req, res, next) {
     stackTrace: err.stack,
   };
   log.error(logLine);
-  err.status = 500
   res.status(500).send("Something broke!");
   next(err)
 }
