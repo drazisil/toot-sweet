@@ -112,22 +112,22 @@ app.use(createExpress.static("./public"));
 // custom 404
 app.use(notFoundHandler);
 
-app.use(
-  Sentry.Handlers.errorHandler({
-    shouldHandleError(error) {
-      // Capture all 404 and 500 errors
-      if (error.status === 404 || error.status === 500) {
-        return true;
-      }
-      return false;
-    },
-  })
-);
-
 // custom error handler
 app.use(errorHandler);
 
 try {
+  app.use(
+    Sentry.Handlers.errorHandler({
+      shouldHandleError(error) {
+        // Capture all 404 and 500 errors
+        if (error.status === 404 || error.status === 500) {
+          return true;
+        }
+        return false;
+      },
+    })
+  );
+
   const server = https.createServer(options, app);
 
   await connectDB()
@@ -164,10 +164,10 @@ function notFoundHandler(req, res, next) {
  * @param {Error} err
  * @param {import("express").Request} req
  * @param {import("express").Response} res
- * @param {import("express").NextFunction} _next
+ * @param {import("express").NextFunction} next
  */
 // eslint-disable-next-line no-unused-vars
-function errorHandler(err, req, res, _next) {
+function errorHandler(err, req, res, next) {
   const logLine = {
     error: "server error",
     method: req.method,
@@ -175,7 +175,9 @@ function errorHandler(err, req, res, _next) {
     stackTrace: err.stack,
   };
   log.error(logLine);
+  err.status - 500
   res.status(500).send("Something broke!");
+  next(err)
 }
 
 /**
