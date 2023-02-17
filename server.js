@@ -17,6 +17,11 @@ import { ProfilingIntegration } from "@sentry/profiling-node";
 
 const app = createExpress();
 
+/**
+ * @typedef {import("express-serve-static-core").Request} Request
+ * @typedef {import("express-serve-static-core").Response} Response
+ */
+
 
 Sentry.init({
   dsn: "https://92f8e46fa8fc4ceaa113b6c57a70eb99@o1413557.ingest.sentry.io/4504277664661504",
@@ -64,9 +69,11 @@ app.use(Sentry.Handlers.tracingHandler());
 
 app.use(logRequestMiddleware());
 
-app.use(express.json({ type: "application/json" }));
+app.use(getBody)
 
-app.use(express.json({ type: "application/activity+json" }));
+// app.use(express.json({ type: "application/json" }));
+
+// app.use(express.json({ type: "application/activity+json" }));
 
 app.use((request, response, next) => {
   if (request.headers["content-type"]?.includes("application/activity+json")) {
@@ -187,4 +194,33 @@ function requestLogger(req, res, next) {
   };
   Queue.getQueue().add({ timestamp: new Date().toISOString(), ...logLine });
   next();
+}
+
+/**
+ *
+ *
+ * @author Drazi Crendraven
+ * @param {import("express").Request} request
+ * @param {import("express").Response} response
+ * @param {import("express").NextFunction} next
+
+ */
+async function getBody(request, response, next) {
+  /** @type {string[]} */
+  let bodyChunks = [];
+
+  let body = ""
+
+  const bodyPromise = new Promise((resolve, reject) => {
+      request.on('data', (chunk) => {
+          bodyChunks.push(chunk);
+      })
+      request.on('end', () => {
+          body = bodyChunks.toString()
+          resolve(body)
+      });
+      request.on("error", (err) => { reject(err) })
+  })
+  request.body = bodyPromise
+  next()
 }
