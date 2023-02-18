@@ -35,10 +35,9 @@ jobs:
         curl -sL https://sentry.io/get-cli/ | SENTRY_CLI_VERSION="2.2.0" bash
 
         # Setup configuration values
-        SENTRY_ORG=drazisilcom
-        SENTRY_ORG=drazisilcom
-        SENTRY_PROJECT=toot-sweet
-        VERSION=`sentry-cli releases propose-version`
+        export SENTRY_ORG=drazisilcom
+        export SENTRY_PROJECT=toot-sweet
+        export VERSION=`sentry-cli releases propose-version`
 
         # Workflow to create releases
         sentry-cli releases new "$VERSION"
