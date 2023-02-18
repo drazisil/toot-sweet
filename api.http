@@ -1,4 +1,9 @@
-mc.drazisil.com:443
+GET https://mc.drazisil.com
+
+###
+
+GET https://mc.drazisil.com/favicon.ico
+
 
 ###
 
