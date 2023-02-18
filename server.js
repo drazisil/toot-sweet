@@ -20,13 +20,6 @@ import { getBody } from "./lib/getBody.js";
 
 const app = createExpress();
 
-/**
- * @typedef {import("express-serve-static-core").Request} Request
- * @typedef {import("express-serve-static-core").Response} Response
- * @typedef {import("express-serve-static-core").NextFunction} NextFunction
- */
-
-
 Sentry.init({
   dsn: "https://92f8e46fa8fc4ceaa113b6c57a70eb99@o1413557.ingest.sentry.io/4504277664661504",
   integrations: [
@@ -51,14 +44,6 @@ const options = {
   domains: [ROOT_DOMAIN],
   settingsPath: "data",
 };
-
-export const grouper = Grouper.getGrouper();
-
-grouper.createGroup("activityStreamsInbound");
-
-grouper.createGroup("actorsSeen");
-
-grouper.createGroup("remoteActors");
 
 app.disable("x-powered-by");
 
@@ -107,7 +92,7 @@ app.use(
     shouldHandleError(error) {
 
       const logLine = {
-        error: "(Sentry) server error",
+        error: "server error",
         errCode: error.status,
         stackTrace: error.stack,
       };
@@ -126,6 +111,14 @@ app.use(
 app.use(errorHandler);
 
 try {
+  const grouper = Grouper.getGrouper();
+
+grouper.createGroup("activityStreamsInbound");
+
+grouper.createGroup("actorsSeen");
+
+grouper.createGroup("remoteActors");
+
 
   const server = https.createServer(options, app);
 
