@@ -26,4 +26,21 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
-    - run: ynpm test
+    - run: npm test
+    - name: Update Sentry Release
+      env:
+        SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      run: |
+        # Install the cli
+        curl -sL https://sentry.io/get-cli/ | SENTRY_CLI_VERSION="2.2.0" bash
+
+        # Setup configuration values
+        SENTRY_ORG=drazisilcom
+        SENTRY_ORG=drazisilcom
+        SENTRY_PROJECT=toot-sweet
+        VERSION=`sentry-cli releases propose-version`
+
+        # Workflow to create releases
+        sentry-cli releases new "$VERSION"
+        sentry-cli releases set-commits "$VERSION" --auto
+        sentry-cli releases finalize "$VERSION"
