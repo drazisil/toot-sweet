@@ -6,6 +6,7 @@ import wellKnownRouter from "./lib/routes/wellknown.js";
 import peopleRouter from "./lib/routes/people.js";
 import apiRouter from "./lib/routes/api.js";
 import adminRouter from "./lib/routes/admin.js";
+import nodeinfoRouter from "./lib/routes/nodeinfo.js"
 import helmet from "helmet";
 import { Grouper } from "./lib/Grouper.js";
 import { logRequestMiddleware } from "./lib/middleware/logRequestMiddleware.js";
@@ -73,6 +74,8 @@ app.use("/admin", adminRouter);
 app.use(requestLogger);
 
 app.use("/.well-known", wellKnownRouter);
+
+app.use("/nodeinfo", nodeinfoRouter);
 
 app.use("/people", peopleRouter);
 
