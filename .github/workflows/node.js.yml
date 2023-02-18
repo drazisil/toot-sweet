@@ -43,3 +43,5 @@ jobs:
         sentry-cli releases new "$VERSION"
         sentry-cli releases set-commits "$VERSION" --auto
         sentry-cli releases finalize "$VERSION"
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
