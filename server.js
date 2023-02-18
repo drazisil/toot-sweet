@@ -35,7 +35,8 @@ Sentry.init({
   // of transactions for performance monitoring.
   // We recommend adjusting this value in production
   tracesSampleRate: 1.0,
-  profilesSampleRate: 1.0 // Profiling sample rate is relative to tracesSampleRate
+  profilesSampleRate: 1.0, // Profiling sample rate is relative to tracesSampleRate
+
 });
 
 export const ROOT_DOMAIN = "mc.drazisil.com";
@@ -52,7 +53,11 @@ app.use(helmet());
 
 // RequestHandler creates a separate execution context using domains, so that every
 // transaction/span/breadcrumb is attached to its own Hub instance
-app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.requestHandler({
+  include: {
+    ip: true
+  }
+}));
 // TracingHandler creates a trace for every incoming request
 app.use(Sentry.Handlers.tracingHandler());
 
