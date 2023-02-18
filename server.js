@@ -1,3 +1,4 @@
+import config from "./lib/config.js";
 import https from "@small-tech/https";
 import log from "./lib/logger.js";
 import createExpress from "express";
@@ -39,10 +40,8 @@ Sentry.init({
 
 });
 
-export const ROOT_DOMAIN = "mc.drazisil.com";
-
 const options = {
-  domains: [ROOT_DOMAIN],
+  domains: [config["SITE_HOST"]],
   settingsPath: "data",
 };
 
