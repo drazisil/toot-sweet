@@ -4,6 +4,13 @@ GET https://mc.drazisil.com
 
 GET https://mc.drazisil.com/favicon.ico
 
+###
+
+GET https://mc.drazisil.com/.well-known/nodeinfo
+
+###
+
+GET https://mc.drazisil.com/nodeinfo/2.1
 
 ###
 
