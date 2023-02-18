@@ -6,14 +6,17 @@ import peopleRouter from "./lib/routes/people.js";
 import apiRouter from "./lib/routes/api.js";
 import adminRouter from "./lib/routes/admin.js";
 import helmet from "helmet";
-import { Queue } from "./lib/Queue.js";
 import { Grouper } from "./lib/Grouper.js";
-import { Activity } from "./lib/Activity.js";
-import { logRequestMiddleware } from "./lib/logRequestMiddleware.js";
+import { logRequestMiddleware } from "./lib/middleware/logRequestMiddleware.js";
 import { connectDB } from "./lib/db.js";
 import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
 import { ProfilingIntegration } from "@sentry/profiling-node";
+import { logActivities } from "./lib/middleware/logActivities.js";
+import { notFoundHandler } from "./lib/middleware/notFoundHandler.js";
+import { errorHandler } from "./lib/middleware/errorHandler.js";
+import { requestLogger } from "./lib/middleware/requestLogger.js";
+import { getBody } from "./lib/getBody.js";
 
 const app = createExpress();
 
@@ -49,7 +52,7 @@ const options = {
   settingsPath: "data",
 };
 
-const grouper = Grouper.getGrouper();
+export const grouper = Grouper.getGrouper();
 
 grouper.createGroup("activityStreamsInbound");
 
@@ -99,29 +102,30 @@ app.use(createExpress.static("./public"));
 // custom 404
 app.use(notFoundHandler);
 
+app.use(
+  Sentry.Handlers.errorHandler({
+    shouldHandleError(error) {
+
+      const logLine = {
+        error: "(Sentry) server error",
+        errCode: error.status,
+        stackTrace: error.stack,
+      };
+      log.error(logLine);
+
+      // Capture all and 500 errors
+      if (error.status === 500) {
+        return true;
+      }
+      return false;
+    },
+  })
+);
+
+// custom error handler
+app.use(errorHandler);
+
 try {
-  app.use(
-    Sentry.Handlers.errorHandler({
-      shouldHandleError(error) {
-
-        const logLine = {
-          error: "(Sentry) server error",
-          errCode: error.status,
-          stackTrace: error.stack,
-        };
-        log.error(logLine);
-
-        // Capture all 404 and 500 errors
-        if (error.status === 404 || error.status === 500) {
-          return true;
-        }
-        return false;
-      },
-    })
-  );
-
-  // custom error handler
-  app.use(errorHandler);
 
   const server = https.createServer(options, app);
 
@@ -140,103 +144,4 @@ try {
   process.exit(-1);
 }
 
-/**
- *
- *
- * @author Drazi Crendraven
- * @param {Request} request
- * @param {Response} response
- * @param {NextFunction} next
- */
-async function logActivities (request, response, next) {
-  if (request.headers["content-type"]?.includes("application/activity+json")) {
-    const inboundActivity = await Activity.fromRequest(request);
 
-    if (inboundActivity.type !== "Delete") {
-      grouper.addToGroup("activityStreamsInbound", inboundActivity);
-    }
-    grouper.addToGroup("actorsSeen", inboundActivity.actor);
-  }
-  next();
-}
-
-/**
- *
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction} next
- */
-// eslint-disable-next-line no-unused-vars
-function notFoundHandler(req, res, next) {
-  const logLine = { error: "not found", method: req.method, url: req.url };
-  log.info(logLine);
-  res.status(404).send("Sorry can't find that!");
-  next()
-}
-
-/**
- *
- * @param {Error} err
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction} next
- */
-// eslint-disable-next-line no-unused-vars
-function errorHandler(err, req, res, next) {
-  const logLine = {
-    error: "server error",
-    method: req.method,
-    url: req.url,
-    stackTrace: err.stack,
-  };
-  log.error(logLine);
-  res.status(500).send("Something broke!");
-  next(err)
-}
-
-/**
- *
- * @param {import("express").Request} req
- * @param {import("express").Response} res
- * @param {import("express").NextFunction} next
- */
-function requestLogger(req, res, next) {
-  const logLine = {
-    headers: JSON.stringify(req.headers),
-    body: JSON.stringify(req.body),
-    method: req.method,
-    url: req.url,
-    remoteHost: req.socket.remoteAddress ?? "unknown",
-  };
-  Queue.getQueue().add({ timestamp: new Date().toISOString(), ...logLine });
-  next();
-}
-
-/**
- *
- *
- * @author Drazi Crendraven
- * @param {import("express").Request} request
- * @param {import("express").Response} response
- * @param {import("express").NextFunction} next
-
- */
-async function getBody(request, response, next) {
-  /** @type {string[]} */
-  let bodyChunks = [];
-
-  let body = ""
-
-  const bodyPromise = new Promise((resolve, reject) => {
-    request.on('data', (chunk) => {
-      bodyChunks.push(chunk);
-    })
-    request.on('end', () => {
-      body = bodyChunks.toString()
-      resolve(body)
-    });
-    request.on("error", (err) => { reject(err) })
-  })
-  request.body = bodyPromise
-  next()
-}
