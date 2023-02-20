@@ -6,7 +6,7 @@ import wellKnownRouter from "./lib/routes/wellknown.js";
 import peopleRouter from "./lib/routes/people.js";
 import apiRouter from "./lib/routes/api.js";
 import adminRouter from "./lib/routes/admin.js";
-import nodeinfoRouter from "./lib/routes/nodeinfo.js"
+import nodeinfoRouter from "./lib/routes/nodeinfo.js";
 import helmet from "helmet";
 import { Grouper } from "./lib/Grouper.js";
 import { logRequestMiddleware } from "./lib/middleware/logRequestMiddleware.js";
@@ -19,6 +19,7 @@ import { notFoundHandler } from "./lib/middleware/notFoundHandler.js";
 import { errorHandler } from "./lib/middleware/errorHandler.js";
 import { requestLogger } from "./lib/middleware/requestLogger.js";
 import { getBody } from "./lib/getBody.js";
+import { ipCheckMiddleware } from "./lib/middleware/ipCheckMiddleware.js";
 
 const app = createExpress();
 
@@ -30,7 +31,7 @@ Sentry.init({
     // enable Express.js middleware tracing
     new Tracing.Integrations.Express({ app }),
     // Add profiling integration to list of integrations
-    new ProfilingIntegration()
+    new ProfilingIntegration(),
   ],
 
   // Set tracesSampleRate to 1.0 to capture 100%
@@ -38,7 +39,6 @@ Sentry.init({
   // We recommend adjusting this value in production
   tracesSampleRate: 1.0,
   profilesSampleRate: 1.0, // Profiling sample rate is relative to tracesSampleRate
-
 });
 
 const options = {
@@ -48,22 +48,25 @@ const options = {
 
 app.disable("x-powered-by");
 
-app.use(helmet());
+app.use(ipCheckMiddleware);
 
+app.use(helmet());
 
 // RequestHandler creates a separate execution context using domains, so that every
 // transaction/span/breadcrumb is attached to its own Hub instance
-app.use(Sentry.Handlers.requestHandler({
-  include: {
-    ip: true
-  }
-}));
+app.use(
+  Sentry.Handlers.requestHandler({
+    include: {
+      ip: true,
+    },
+  })
+);
 // TracingHandler creates a trace for every incoming request
 app.use(Sentry.Handlers.tracingHandler());
 
 app.use(logRequestMiddleware);
 
-app.use(getBody)
+app.use(getBody);
 
 app.use(logActivities);
 
@@ -97,7 +100,6 @@ app.use(notFoundHandler);
 app.use(
   Sentry.Handlers.errorHandler({
     shouldHandleError(error) {
-
       const logLine = {
         error: "server error",
         errCode: error.status,
@@ -120,16 +122,27 @@ app.use(errorHandler);
 try {
   const grouper = Grouper.getGrouper();
 
-grouper.createGroup("activityStreamsInbound");
+  grouper.createGroup("activityStreamsInbound");
 
-grouper.createGroup("actorsSeen");
+  grouper.createGroup("actorsSeen");
 
-grouper.createGroup("remoteActors");
-
+  grouper.createGroup("remoteActors");
 
   const server = https.createServer(options, app);
 
-  await connectDB()
+  grouper.createGroup("localHosts");
+
+  config["LOCAL_HOSTS"].forEach((/** @type {string} */ entry) => {
+    grouper.addToGroup("localHosts", entry);
+  });
+
+  grouper.createGroup("blockedIPs");
+
+  config["BLOCKLIST"].forEach((/** @type {string} */ entry) => {
+    grouper.addToGroup("blockedIPs", entry);
+  });
+
+  await connectDB();
 
   server.listen(443, () => {
     log.info(Object({ server: { status: "listening" } }));
@@ -140,8 +153,6 @@ grouper.createGroup("remoteActors");
   });
 } catch (error) {
   console.error(error);
-  log.error({ reason: `Fatal error!: ${{ "error": String(error) }}` });
+  log.error({ reason: `Fatal error!: ${{ error: String(error) }}` });
   process.exit(-1);
 }
-
-
