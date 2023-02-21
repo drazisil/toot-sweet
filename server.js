@@ -20,6 +20,7 @@ import { errorHandler } from "./lib/middleware/errorHandler.js";
 import { requestLogger } from "./lib/middleware/requestLogger.js";
 import { getBody } from "./lib/getBody.js";
 import { ipCheckMiddleware } from "./lib/middleware/ipCheckMiddleware.js";
+import { Link } from "./lib/Link.js";
 
 const app = createExpress();
 
@@ -133,13 +134,17 @@ try {
   grouper.createGroup("localHosts");
 
   config["LOCAL_HOSTS"].forEach((/** @type {string} */ entry) => {
-    grouper.addToGroup("localHosts", entry);
+    const host = new Link(entry, entry)
+    host.id = entry
+    grouper.addToGroup("localHosts", host);
   });
 
   grouper.createGroup("blockedIPs");
 
   config["BLOCKLIST"].forEach((/** @type {string} */ entry) => {
-    grouper.addToGroup("blockedIPs", entry);
+    const host = new Link(entry, entry)
+    host.id = entry
+    grouper.addToGroup("blockedIPs", host);
   });
 
   await connectDB();
