@@ -26,7 +26,7 @@
     "@adminjs/express": "5.1.0",
     "@adminjs/sequelize": "3.0.0",
     "@sentry/node": "7.38.0",
-    "@sentry/profiling-node": "0.2.1",
+    "@sentry/profiling-node": "0.2.2",
     "@sentry/tracing": "7.38.0",
     "@small-tech/https": "5.2.0",
     "adminjs": "6.8.6",
