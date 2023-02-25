@@ -10,10 +10,6 @@ import nodeinfoRouter from "./lib/routes/nodeinfo.js";
 import helmet from "helmet";
 import { Grouper } from "./lib/Grouper.js";
 import { logRequestMiddleware } from "./lib/middleware/logRequestMiddleware.js";
-import { connectDB } from "./lib/db.js";
-import * as Sentry from "@sentry/node";
-import * as Tracing from "@sentry/tracing";
-import { ProfilingIntegration } from "@sentry/profiling-node";
 import { logActivities } from "./lib/middleware/logActivities.js";
 import { notFoundHandler } from "./lib/middleware/notFoundHandler.js";
 import { errorHandler } from "./lib/middleware/errorHandler.js";
@@ -23,24 +19,6 @@ import { ipCheckMiddleware } from "./lib/middleware/ipCheckMiddleware.js";
 import { Link } from "./lib/Link.js";
 
 const app = createExpress();
-
-Sentry.init({
-  dsn: "https://92f8e46fa8fc4ceaa113b6c57a70eb99@o1413557.ingest.sentry.io/4504277664661504",
-  integrations: [
-    // enable HTTP calls tracing
-    new Sentry.Integrations.Http({ tracing: true }),
-    // enable Express.js middleware tracing
-    new Tracing.Integrations.Express({ app }),
-    // Add profiling integration to list of integrations
-    new ProfilingIntegration(),
-  ],
-
-  // Set tracesSampleRate to 1.0 to capture 100%
-  // of transactions for performance monitoring.
-  // We recommend adjusting this value in production
-  tracesSampleRate: 1.0,
-  profilesSampleRate: 1.0, // Profiling sample rate is relative to tracesSampleRate
-});
 
 const options = {
   domains: [config["SITE_HOST"]],
@@ -52,18 +30,6 @@ app.disable("x-powered-by");
 app.use(ipCheckMiddleware);
 
 app.use(helmet());
-
-// RequestHandler creates a separate execution context using domains, so that every
-// transaction/span/breadcrumb is attached to its own Hub instance
-app.use(
-  Sentry.Handlers.requestHandler({
-    include: {
-      ip: true,
-    },
-  })
-);
-// TracingHandler creates a trace for every incoming request
-app.use(Sentry.Handlers.tracingHandler());
 
 app.use(logRequestMiddleware);
 
@@ -98,25 +64,6 @@ app.use(createExpress.static("./public"));
 // custom 404
 app.use(notFoundHandler);
 
-app.use(
-  Sentry.Handlers.errorHandler({
-    shouldHandleError(error) {
-      const logLine = {
-        error: "server error",
-        errCode: error.status,
-        stackTrace: error.stack,
-      };
-      log.error(logLine);
-
-      // Capture all and 500 errors
-      if (error.status === 500) {
-        return true;
-      }
-      return false;
-    },
-  })
-);
-
 // custom error handler
 app.use(errorHandler);
 
@@ -146,8 +93,6 @@ try {
     host.id = entry
     grouper.addToGroup("blockedIPs", host);
   });
-
-  await connectDB();
 
   server.listen(443, () => {
     log.info(Object({ server: { status: "listening" } }));
