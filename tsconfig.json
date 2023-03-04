@@ -10,7 +10,9 @@
         "allowUnreachableCode": false,
         "strict": true,
         "noPropertyAccessFromIndexSignature": true,
+        "noEmit": true,
         "declaration": true,
+        "allowSyntheticDefaultImports": true
     },
     "exclude": [
         "node_modules",
