@@ -1,108 +1,80 @@
-import config from "./lib/config.js";
-import https from "@small-tech/https";
-import log from "./lib/logger.js";
-import createExpress from "express";
-import wellKnownRouter from "./lib/routes/wellknown.js";
-import peopleRouter from "./lib/routes/people.js";
-import apiRouter from "./lib/routes/api.js";
-import adminRouter from "./lib/routes/admin.js";
-import nodeinfoRouter from "./lib/routes/nodeinfo.js";
-import helmet from "helmet";
-import { Grouper } from "./lib/Grouper.js";
-import { logRequestMiddleware } from "./lib/middleware/logRequestMiddleware.js";
-import { logActivities } from "./lib/middleware/logActivities.js";
-import { notFoundHandler } from "./lib/middleware/notFoundHandler.js";
-import { errorHandler } from "./lib/middleware/errorHandler.js";
-import { requestLogger } from "./lib/middleware/requestLogger.js";
-import { getBody } from "./lib/getBody.js";
-import { ipCheckMiddleware } from "./lib/middleware/ipCheckMiddleware.js";
-import { Link } from "./lib/Link.js";
-
-const app = createExpress();
-
-const options = {
-  domains: [config["SITE_HOST"]],
-  settingsPath: "data",
+"use strict";
+exports.__esModule = true;
+var config_js_1 = require("./lib/config.js");
+var https_1 = require("@small-tech/https");
+var logger_js_1 = require("./lib/logger.js");
+var express_1 = require("express");
+var wellknown_js_1 = require("./lib/routes/wellknown.js");
+var people_js_1 = require("./lib/routes/people.js");
+var api_js_1 = require("./lib/routes/api.js");
+var admin_js_1 = require("./lib/routes/admin.js");
+var nodeinfo_js_1 = require("./lib/routes/nodeinfo.js");
+var helmet_1 = require("helmet");
+var Grouper_js_1 = require("./lib/Grouper.js");
+var logRequestMiddleware_js_1 = require("./lib/middleware/logRequestMiddleware.js");
+var logActivities_js_1 = require("./lib/middleware/logActivities.js");
+var notFoundHandler_js_1 = require("./lib/middleware/notFoundHandler.js");
+var errorHandler_js_1 = require("./lib/middleware/errorHandler.js");
+var requestLogger_js_1 = require("./lib/middleware/requestLogger.js");
+var getBody_js_1 = require("./lib/getBody.js");
+var ipCheckMiddleware_js_1 = require("./lib/middleware/ipCheckMiddleware.js");
+var Link_js_1 = require("./lib/Link.js");
+var app = (0, express_1["default"])();
+var options = {
+    domains: [config_js_1["default"]["SITE_HOST"]],
+    settingsPath: "data"
 };
-
 app.disable("x-powered-by");
-
-app.use(ipCheckMiddleware);
-
-app.use(helmet());
-
-app.use(logRequestMiddleware);
-
-app.use(getBody);
-
-app.use(logActivities);
-
-app.use("/api", apiRouter);
-
-app.use("/admin", adminRouter);
-
-app.use(requestLogger);
-
-app.use("/.well-known", wellKnownRouter);
-
-app.use("/nodeinfo", nodeinfoRouter);
-
-app.use("/people", peopleRouter);
-
+app.use(ipCheckMiddleware_js_1.ipCheckMiddleware);
+app.use((0, helmet_1["default"])());
+app.use(logRequestMiddleware_js_1.logRequestMiddleware);
+app.use(getBody_js_1.getBody);
+app.use(logActivities_js_1.logActivities);
+app.use("/api", api_js_1["default"]);
+app.use("/admin", admin_js_1["default"]);
+app.use(requestLogger_js_1.requestLogger);
+app.use("/.well-known", wellknown_js_1["default"]);
+app.use("/nodeinfo", nodeinfo_js_1["default"]);
+app.use("/people", people_js_1["default"]);
 // This needs to redirect to /people
-app.use("/users", peopleRouter);
-
+app.use("/users", people_js_1["default"]);
 app.set("view engine", "ejs");
-
-app.get("/", (req, res) => {
-  res.render("index", { foo: "FOO" });
+app.get("/", function (req, res) {
+    res.render("index", { foo: "FOO" });
 });
-
 //  statis files
-app.use(createExpress.static("./public"));
-
+app.use(express_1["default"].static("./public"));
 // custom 404
-app.use(notFoundHandler);
-
+app.use(notFoundHandler_js_1.notFoundHandler);
 // custom error handler
-app.use(errorHandler);
-
+app.use(errorHandler_js_1.errorHandler);
 try {
-  const grouper = Grouper.getGrouper();
-
-  grouper.createGroup("activityStreamsInbound");
-
-  grouper.createGroup("actorsSeen");
-
-  grouper.createGroup("remoteActors");
-
-  const server = https.createServer(options, app);
-
-  grouper.createGroup("localHosts");
-
-  config["LOCAL_HOSTS"].forEach((/** @type {string} */ entry) => {
-    const host = new Link(entry, entry)
-    host.id = entry
-    grouper.addToGroup("localHosts", host);
-  });
-
-  grouper.createGroup("blockedIPs");
-
-  config["BLOCKLIST"].forEach((/** @type {string} */ entry) => {
-    const host = new Link(entry, entry)
-    host.id = entry
-    grouper.addToGroup("blockedIPs", host);
-  });
-
-  server.listen(443, () => {
-    log.info(Object({ server: { status: "listening" } }));
-  });
-
-  server.on("error", (/** @type {unknown} */ err) => {
-    log.error(Object({ server: { status: "errored", reason: String(err) } }));
-  });
-} catch (error) {
-  console.error(error);
-  log.error({ reason: `Fatal error!: ${{ error: String(error) }}` });
-  process.exit(-1);
+    var grouper_1 = Grouper_js_1.Grouper.getGrouper();
+    grouper_1.createGroup("activityStreamsInbound");
+    grouper_1.createGroup("actorsSeen");
+    grouper_1.createGroup("remoteActors");
+    var server = https_1["default"].createServer(options, app);
+    grouper_1.createGroup("localHosts");
+    config_js_1["default"]["LOCAL_HOSTS"].forEach(function (entry) {
+        var host = new Link_js_1.Link(entry, entry);
+        host.id = entry;
+        grouper_1.addToGroup("localHosts", host);
+    });
+    grouper_1.createGroup("blockedIPs");
+    config_js_1["default"]["BLOCKLIST"].forEach(function (entry) {
+        var host = new Link_js_1.Link(entry, entry);
+        host.id = entry;
+        grouper_1.addToGroup("blockedIPs", host);
+    });
+    server.listen(443, function () {
+        logger_js_1["default"].info(Object({ server: { status: "listening" } }));
+    });
+    server.on("error", function (err) {
+        logger_js_1["default"].error(Object({ server: { status: "errored", reason: String(err) } }));
+    });
+}
+catch (error) {
+    console.error(error);
+    logger_js_1["default"].error({ reason: "Fatal error!: ".concat({ error: String(error) }) });
+    process.exit(-1);
 }

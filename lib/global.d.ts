@@ -7,8 +7,8 @@ declare module "@small-tech/https" {
   } from "node:http";
   import { RequestOptions, Server } from "node:https";
   type Options = {
-    domains?: string[]
-  }
+    domains?: string[];
+  };
   function request(
     options: RequestOptions | string | URL,
     callback?: (res: IncomingMessage) => void
@@ -32,3 +32,10 @@ declare module "@small-tech/https" {
     requestListener?: RequestListener<Request, Response>
   ): Server<Request, Response>;
 }
+
+
+declare module "http-signature" {
+  import { ClientRequest } from "http";
+  function sign(requestToSign: ClientRequest, options: {key: string, keyId: string, keyPassphrase?: string, headers?: string[]}): void
+}
+

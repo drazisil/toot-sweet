@@ -1,0 +1,90 @@
+import httpSignature from "http-signature";
+import https from "@small-tech/https";
+import { createHash } from "node:crypto";
+import { IncomingMessage } from "node:http";
+import { Activity } from "./Activity";
+import { PersonRecord } from "./PeopleConnector";
+import { Grouper } from "./Grouper";
+
+/**
+ * @typedef {import("express-serve-static-core").Request} Request
+ * @typedef {import("node:http").RequestOptions} RequestOptions
+ * @typedef {import("./Grouper.js").Grouper} Grouper
+ * @typedef {import("./Activity.js").Activity} Activity
+ * @typedef {import("./PeopleConnector.js").PersonRecord} PersonRecord
+ */
+
+/**
+ *
+ * @param {Activity} respondingActivity
+ * @param {string} sendingKey
+ * @param {PersonRecord} sendingActor
+ * @param {Grouper} grouper
+ */
+export function sendActivity(
+  respondingActivity: Activity,
+  sendingKey: string,
+  sendingActor: PersonRecord,
+  grouper: Grouper
+) {
+  const postData = JSON.stringify(respondingActivity);
+
+  /** @type {RequestOptions} */
+  const respondingRequestOptions = {
+    host: respondingActivity.headerHostname,
+    path: respondingActivity.headerUrl,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Content-Length": Buffer.byteLength(postData),
+    },
+  };
+
+  const respondingRequest = https.request(
+    respondingRequestOptions,
+    (res: IncomingMessage) => {
+      console.log(`STATUS: ${res.statusCode}`);
+      res.setEncoding("utf8");
+      res.on("data", (chunk) => {
+        console.log(`BODY: ${chunk}`);
+      });
+      res.on("end", () => {
+        console.log("No more data in response.");
+      });
+    }
+  );
+
+  respondingRequest.on("error", (e: unknown) => {
+    console.error(`problem with request: ${String(e)}`);
+  });
+
+  const hash = createHash("sha256");
+  hash.update(postData);
+  const digest = "SHA-256=".concat(hash.digest("base64"));
+
+  respondingRequest.setHeader("digest", digest);
+
+  httpSignature.sign(respondingRequest, {
+    key: sendingKey,
+    keyId: sendingActor.id.concat("#main-key"),
+    headers: ["(request-target)", "host", "date", "digest"],
+  });
+
+  respondingActivity.headerSig = String(
+    respondingRequest.getHeader("authorization") ?? ""
+  ).substring("Signature ".length);
+
+  respondingRequest.setHeader("signature", respondingActivity.headerSig);
+
+  respondingRequest.write(postData);
+  respondingRequest.end();
+
+  grouper.addToGroup(
+    sendingActor.preferredUsername.concat(".inbox"),
+    respondingActivity
+  );
+  grouper.addToGroup(
+    sendingActor.preferredUsername.concat(".statuses"),
+    respondingActivity.object
+  );
+}

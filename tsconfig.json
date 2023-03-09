@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
-        "module": "ESNext",
-        "moduleResolution": "nodenext",
-        "target": "ES2020",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "target": "ESNext",
         "allowJs": true,
         "checkJs": true,
         "strictNullChecks": true,
@@ -12,10 +12,15 @@
         "noPropertyAccessFromIndexSignature": true,
         "noEmit": true,
         "declaration": true,
-        "allowSyntheticDefaultImports": true
+        "allowSyntheticDefaultImports": true,
     },
+    "include": [
+      "./server.ts",
+      "lib/**/*.{js,ts}"
+    ],
     "exclude": [
         "node_modules",
-        "**/node_modules/*"
+        "**/node_modules/*",
+        "coverage"
     ]
 }
