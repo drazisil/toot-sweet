@@ -81,16 +81,16 @@ try {
   grouper.createGroup("localHosts");
 
   config["LOCAL_HOSTS"].forEach((entry: string) => {
-    const host = new Link(entry, entry)
-    host.id = entry
+    const host = new Link(entry, entry);
+    host.id = entry;
     grouper.addToGroup("localHosts", host);
   });
 
   grouper.createGroup("blockedIPs");
 
   config["BLOCKLIST"].forEach((entry: string) => {
-    const host = new Link(entry, entry)
-    host.id = entry
+    const host = new Link(entry, entry);
+    host.id = entry;
     grouper.addToGroup("blockedIPs", host);
   });
 

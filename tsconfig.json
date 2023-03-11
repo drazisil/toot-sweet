@@ -13,6 +13,9 @@
         "noEmit": true,
         "declaration": true,
         "allowSyntheticDefaultImports": true,
+        "typeRoots": [
+          "./lib/@types"
+        ]
     },
     "include": [
       "./server.ts",
