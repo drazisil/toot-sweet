@@ -58,7 +58,7 @@ app.get("/", (req, res) => {
   res.render("index", { foo: "FOO" });
 });
 
-//  statis files
+//  static files
 app.use(createExpress.static("./public"));
 
 // custom 404
