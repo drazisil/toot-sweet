@@ -29,10 +29,11 @@ jobs:
     - run: npm test
     - name: Create Sentry release
       uses: getsentry/action-release@v1
-      with:
+      env:
         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         SENTRY_ORG: drazisilcom
         SENTRY_PROJECT: toot-sweet
+      with:
         environment: production
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
