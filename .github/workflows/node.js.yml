@@ -33,7 +33,6 @@ jobs:
         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         SENTRY_ORG: drazisilcom
         SENTRY_PROJECT: toot-sweet
-        # SENTRY_URL: https://sentry.io/
       with:
         environment: production
     - name: Upload coverage reports to Codecov
