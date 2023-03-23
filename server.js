@@ -1,22 +1,25 @@
-import config from "./lib/config.js";
+import * as Sentry from "@sentry/node";
+import * as Tracing from "@sentry/tracing";
 import https from "@small-tech/https";
-import log from "./lib/logger.js";
 import createExpress from "express";
-import wellKnownRouter from "./lib/routes/wellknown.js";
-import peopleRouter from "./lib/routes/people.js";
-import apiRouter from "./lib/routes/api.js";
-import adminRouter from "./lib/routes/admin.js";
-import nodeinfoRouter from "./lib/routes/nodeinfo.js";
 import helmet from "helmet";
-import { Grouper } from "./lib/Grouper.js";
-import { logRequestMiddleware } from "./lib/middleware/logRequestMiddleware.js";
-import { logActivities } from "./lib/middleware/logActivities.js";
-import { notFoundHandler } from "./lib/middleware/notFoundHandler.js";
-import { errorHandler } from "./lib/middleware/errorHandler.js";
-import { requestLogger } from "./lib/middleware/requestLogger.js";
+import config from "./lib/config.js";
 import { getBody } from "./lib/getBody.js";
-import { ipCheckMiddleware } from "./lib/middleware/ipCheckMiddleware.js";
+import { Grouper } from "./lib/Grouper.js";
 import { Link } from "./lib/Link.js";
+import log from "./lib/logger.js";
+import { errorHandler } from "./lib/middleware/errorHandler.js";
+import { ipCheckMiddleware } from "./lib/middleware/ipCheckMiddleware.js";
+import { logActivities } from "./lib/middleware/logActivities.js";
+import { logRequestMiddleware } from "./lib/middleware/logRequestMiddleware.js";
+import { notFoundHandler } from "./lib/middleware/notFoundHandler.js";
+import { requestLogger } from "./lib/middleware/requestLogger.js";
+import adminRouter from "./lib/routes/admin.js";
+import apiRouter from "./lib/routes/api.js";
+import nodeinfoRouter from "./lib/routes/nodeinfo.js";
+import peopleRouter from "./lib/routes/people.js";
+import wellKnownRouter from "./lib/routes/wellknown.js";
+import {ProfilingIntegration} from "@sentry/profiling-node";
 
 const app = createExpress();
 
@@ -24,6 +27,30 @@ const options = {
   domains: [config["SITE_HOST"]],
   settingsPath: "data",
 };
+
+
+Sentry.init({
+  dsn: "https://92f8e46fa8fc4ceaa113b6c57a70eb99@o1413557.ingest.sentry.io/4504277664661504",
+  // Set tracesSampleRate to 1.0 to capture 100%
+  // of transactions for performance monitoring.
+  // We recommend adjusting this value in production
+  tracesSampleRate: 1.0,
+  profilesSampleRate: 1.0, // Profiling sample rate is relative to tracesSampleRate
+  integrations: [
+    // enable HTTP calls tracing
+    new Sentry.Integrations.Http({ tracing: true }),
+    // enable Express.js middleware tracing
+    new Tracing.Integrations.Express({ app }),
+    // Add profiling integration to list of integrations
+    new ProfilingIntegration()
+  ],
+});
+
+// RequestHandler creates a separate execution context using domains, so that every
+// transaction/span/breadcrumb is attached to its own Hub instance
+app.use(Sentry.Handlers.requestHandler());
+// TracingHandler creates a trace for every incoming request
+app.use(Sentry.Handlers.tracingHandler());
 
 app.disable("x-powered-by");
 
