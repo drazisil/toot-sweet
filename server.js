@@ -58,7 +58,7 @@ app.get("/", (req, res) => {
   res.render("index", { foo: "FOO" });
 });
 
-//  statis files
+//  static files
 app.use(createExpress.static("./public"));
 
 // custom 404
@@ -81,16 +81,16 @@ try {
   grouper.createGroup("localHosts");
 
   config["LOCAL_HOSTS"].forEach((/** @type {string} */ entry) => {
-    const host = new Link(entry, entry)
-    host.id = entry
+    const host = new Link(entry, entry);
+    host.id = entry;
     grouper.addToGroup("localHosts", host);
   });
 
   grouper.createGroup("blockedIPs");
 
   config["BLOCKLIST"].forEach((/** @type {string} */ entry) => {
-    const host = new Link(entry, entry)
-    host.id = entry
+    const host = new Link(entry, entry);
+    host.id = entry;
     grouper.addToGroup("blockedIPs", host);
   });
 
@@ -98,7 +98,7 @@ try {
     log.info(Object({ server: { status: "listening" } }));
   });
 
-  server.on("error", (/** @type {unknown} */ err) => {
+  server.on("error", (err) => {
     log.error(Object({ server: { status: "errored", reason: String(err) } }));
   });
 } catch (error) {
