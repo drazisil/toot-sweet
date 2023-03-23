@@ -1,6 +1,6 @@
 import { equal } from "node:assert/strict";
 import { describe, it } from "node:test";
-import { splitUrl } from "./urls.js";
+import { splitUrl } from "../lib/urls.js";
 
 describe("splitUrl()", () => {
   it("should return / when passed an empty string", () => {

@@ -18,7 +18,7 @@
         ]
     },
     "include": [
-      "./server.ts",
+      "server.js",
       "lib/**/*.{js,ts}"
     ],
     "exclude": [
