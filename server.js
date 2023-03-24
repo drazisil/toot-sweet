@@ -14,7 +14,6 @@ import { logActivities } from "./lib/middleware/logActivities.js";
 import { logRequestMiddleware } from "./lib/middleware/logRequestMiddleware.js";
 import { notFoundHandler } from "./lib/middleware/notFoundHandler.js";
 import { requestLogger } from "./lib/middleware/requestLogger.js";
-import adminRouter from "./lib/routes/admin.js";
 import apiRouter from "./lib/routes/api.js";
 import nodeinfoRouter from "./lib/routes/nodeinfo.js";
 import peopleRouter from "./lib/routes/people.js";
@@ -66,8 +65,6 @@ app.use(logActivities);
 
 app.use("/api", apiRouter);
 
-app.use("/admin", adminRouter);
-
 app.use(requestLogger);
 
 app.use("/.well-known", wellKnownRouter);
@@ -79,14 +76,8 @@ app.use("/people", peopleRouter);
 // This needs to redirect to /people
 app.use("/users", peopleRouter);
 
-app.set("view engine", "ejs");
-
-app.get("/", (req, res) => {
-  res.render("index", { foo: "FOO" });
-});
-
 //  static files
-app.use(createExpress.static("./public"));
+app.use(createExpress.static("./build"));
 
 // custom 404
 app.use(notFoundHandler);

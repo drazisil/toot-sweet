@@ -5,5 +5,12 @@
     "cobertura",
     "html",
     "lcov"
+  ],
+  "exclude": [
+    "build",
+    "frontend",
+    "coverage",
+    "test",
+    "**/@types"
   ]
 }
