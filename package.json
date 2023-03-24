@@ -9,8 +9,7 @@
   },
   "scripts": {
     "start": "node  server.js",
-    "test": "node --test --test-reporter=spec",
-    "test:watch": "node --test  --test-reporter=spec --watch server.js lib",
+    "test": "node --test --test-reporter=spec test/",
     "coverage": "c8 npm test",
     "lint": "tsc",
     "lint:watch": "tsc --watch"
