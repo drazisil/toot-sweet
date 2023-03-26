@@ -15,7 +15,11 @@
         "allowSyntheticDefaultImports": true,
         "typeRoots": [
           "./lib/@types"
-        ]
+        ],
+        "paths": {
+          "toot-sweet/middleware": ["./lib/middleware/index.js"],
+          "toot-sweet/routes": ["./lib/routes/index.js"]
+        }
     },
     "include": [
       "server.js",

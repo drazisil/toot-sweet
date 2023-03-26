@@ -5,7 +5,9 @@
   "type": "module",
   "types": "./lib/types/",
   "exports": {
-    ".": "./lib/index.js"
+    ".": "./lib/index.js",
+    "./middleware": "./lib/middleware/index.js",
+    "./routes": "./lib/routes/index.js"
   },
   "scripts": {
     "start": "node  server.js",
