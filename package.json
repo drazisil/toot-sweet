@@ -5,12 +5,14 @@
   "type": "module",
   "types": "./lib/types/",
   "exports": {
-    ".": "./lib/index.js"
+    ".": "./lib/index.js",
+    "./middleware": "./lib/middleware/index.js",
+    "./routes": "./lib/routes/index.js",
+    "./models": "./lib/models/index.js"
   },
   "scripts": {
     "start": "node  server.js",
-    "test": "node --test --test-reporter=spec",
-    "test:watch": "node --test  --test-reporter=spec --watch server.js lib",
+    "test": "node --test --test-reporter=spec test/",
     "coverage": "c8 npm test",
     "lint": "tsc",
     "lint:watch": "tsc --watch"
@@ -19,6 +21,8 @@
   "author": "",
   "license": "AGPL-3.0",
   "devDependencies": {
+    "@sveltejs/adapter-node": "^1.2.3",
+    "@sveltejs/adapter-static": "^2.0.1",
     "@types/express": "^4.17.17",
     "c8": "^7.13.0",
     "eslint": "8.35.0",
@@ -31,7 +35,8 @@
   "dependencies": {
     "@sentry/node": "^7.45.0",
     "@sentry/profiling-node": "^0.3.0",
-    "@sentry/tracing": "^7.45.0",
+    "@sentry/svelte": "^7.44.2",
+    "@sentry/tracing": "^7.44.2",
     "@small-tech/https": "5.2.0",
     "ajv": "8.12.0",
     "body-parser": "1.20.2",

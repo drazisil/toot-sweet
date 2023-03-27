@@ -1,33 +1,33 @@
 import * as Sentry from "@sentry/node";
+import { ProfilingIntegration } from "@sentry/profiling-node";
 import * as Tracing from "@sentry/tracing";
 import https from "@small-tech/https";
 import createExpress from "express";
 import helmet from "helmet";
-import config from "./lib/config.js";
-import { getBody } from "./lib/getBody.js";
+import {
+  bodyParser,
+  errorHandler,
+  ipCheckMiddleware,
+  logActivities,
+  logRequestMiddleware,
+  notFoundHandler,
+  requestLogger
+} from "toot-sweet/middleware";
+import { apiRouter, nodeinfoRouter, peopleRouter, wellKnownRouter } from "toot-sweet/routes";
+import {loadConfiguration} from "./lib/config.js";
 import { Grouper } from "./lib/Grouper.js";
 import { Link } from "./lib/Link.js";
 import log from "./lib/logger.js";
-import { errorHandler } from "./lib/middleware/errorHandler.js";
-import { ipCheckMiddleware } from "./lib/middleware/ipCheckMiddleware.js";
-import { logActivities } from "./lib/middleware/logActivities.js";
-import { logRequestMiddleware } from "./lib/middleware/logRequestMiddleware.js";
-import { notFoundHandler } from "./lib/middleware/notFoundHandler.js";
-import { requestLogger } from "./lib/middleware/requestLogger.js";
-import adminRouter from "./lib/routes/admin.js";
-import apiRouter from "./lib/routes/api.js";
-import nodeinfoRouter from "./lib/routes/nodeinfo.js";
-import peopleRouter from "./lib/routes/people.js";
-import wellKnownRouter from "./lib/routes/wellknown.js";
-import {ProfilingIntegration} from "@sentry/profiling-node";
+import { PeopleConnector } from "./lib/PeopleConnector.js";
 
 const app = createExpress();
 
+const config = loadConfiguration()
+
 const options = {
-  domains: [config["SITE_HOST"]],
+  domains: [config.siteHost],
   settingsPath: "data",
 };
-
 
 Sentry.init({
   dsn: "https://92f8e46fa8fc4ceaa113b6c57a70eb99@o1413557.ingest.sentry.io/4504277664661504",
@@ -42,7 +42,7 @@ Sentry.init({
     // enable Express.js middleware tracing
     new Tracing.Integrations.Express({ app }),
     // Add profiling integration to list of integrations
-    new ProfilingIntegration()
+    new ProfilingIntegration(),
   ],
 });
 
@@ -60,13 +60,11 @@ app.use(helmet());
 
 app.use(logRequestMiddleware);
 
-app.use(getBody);
+app.use(bodyParser);
 
 app.use(logActivities);
 
 app.use("/api", apiRouter);
-
-app.use("/admin", adminRouter);
 
 app.use(requestLogger);
 
@@ -79,14 +77,8 @@ app.use("/people", peopleRouter);
 // This needs to redirect to /people
 app.use("/users", peopleRouter);
 
-app.set("view engine", "ejs");
-
-app.get("/", (req, res) => {
-  res.render("index", { foo: "FOO" });
-});
-
 //  static files
-app.use(createExpress.static("./public"));
+app.use(createExpress.static("./build"));
 
 // custom 404
 app.use(notFoundHandler);
@@ -96,6 +88,10 @@ app.use(errorHandler);
 
 try {
   const grouper = Grouper.getGrouper();
+
+  PeopleConnector.getPeopleConnector(config).addPerson("drazi");
+
+  PeopleConnector.getPeopleConnector(config).addPerson("self");
 
   grouper.createGroup("activityStreamsInbound");
 
@@ -107,7 +103,7 @@ try {
 
   grouper.createGroup("localHosts");
 
-  config["LOCAL_HOSTS"].forEach((/** @type {string} */ entry) => {
+  config.localHosts.forEach((/** @type {string} */ entry) => {
     const host = new Link(entry, entry);
     host.id = entry;
     grouper.addToGroup("localHosts", host);
@@ -115,7 +111,7 @@ try {
 
   grouper.createGroup("blockedIPs");
 
-  config["BLOCKLIST"].forEach((/** @type {string} */ entry) => {
+  config.blockList.forEach((/** @type {string} */ entry) => {
     const host = new Link(entry, entry);
     host.id = entry;
     grouper.addToGroup("blockedIPs", host);
@@ -130,6 +126,6 @@ try {
   });
 } catch (error) {
   console.error(error);
-  log.error({ reason: `Fatal error!: ${{ error: String(error) }}` });
+  log.error({ reason: `Fatal error!: ${String(error) }` });
   process.exit(-1);
 }
