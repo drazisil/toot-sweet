@@ -28,6 +28,7 @@ jobs:
     - run: npm ci
     - run: npm run coverage
     - name: Create Sentry release
+      if: github.ref == 'main'
       uses: getsentry/action-release@v1
       env:
         SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
