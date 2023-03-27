@@ -18,6 +18,7 @@ import {loadConfiguration} from "./lib/config.js";
 import { Grouper } from "./lib/Grouper.js";
 import { Link } from "./lib/Link.js";
 import log from "./lib/logger.js";
+import { PeopleConnector } from "./lib/PeopleConnector.js";
 
 const app = createExpress();
 
@@ -87,6 +88,10 @@ app.use(errorHandler);
 
 try {
   const grouper = Grouper.getGrouper();
+
+  PeopleConnector.getPeopleConnector(config).addPerson("drazi");
+
+  PeopleConnector.getPeopleConnector(config).addPerson("self");
 
   grouper.createGroup("activityStreamsInbound");
 
