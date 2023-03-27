@@ -7,7 +7,8 @@
   "exports": {
     ".": "./lib/index.js",
     "./middleware": "./lib/middleware/index.js",
-    "./routes": "./lib/routes/index.js"
+    "./routes": "./lib/routes/index.js",
+    "./models": "./lib/models/index.js"
   },
   "scripts": {
     "start": "node  server.js",

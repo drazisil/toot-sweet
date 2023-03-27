@@ -1,33 +1,25 @@
 {
-    "compilerOptions": {
-        "module": "esnext",
-        "moduleResolution": "node",
-        "target": "ESNext",
-        "allowJs": true,
-        "checkJs": true,
-        "strictNullChecks": true,
-        "strictFunctionTypes": true,
-        "allowUnreachableCode": false,
-        "strict": true,
-        "noPropertyAccessFromIndexSignature": true,
-        "noEmit": true,
-        "declaration": true,
-        "allowSyntheticDefaultImports": true,
-        "typeRoots": [
-          "./lib/@types"
-        ],
-        "paths": {
-          "toot-sweet/middleware": ["./lib/middleware/index.js"],
-          "toot-sweet/routes": ["./lib/routes/index.js"]
-        }
-    },
-    "include": [
-      "server.js",
-      "lib/**/*.{js,ts}"
-    ],
-    "exclude": [
-        "node_modules",
-        "**/node_modules/*",
-        "coverage"
-    ]
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "node",
+    "target": "ESNext",
+    "allowJs": true,
+    "checkJs": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "allowUnreachableCode": false,
+    "strict": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noEmit": true,
+    "declaration": true,
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": ["./lib/@types"],
+    "paths": {
+      "toot-sweet/middleware": ["./lib/middleware/index.js"],
+      "toot-sweet/routes": ["./lib/routes/index.js"],
+      "toot-sweet/models": ["./lib/models/index.js"]
+    }
+  },
+  "include": ["server.js", "lib/**/*.{js,ts}"],
+  "exclude": ["node_modules", "**/node_modules/*", "coverage"]
 }
