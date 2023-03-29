@@ -11,6 +11,7 @@
     "frontend",
     "coverage",
     "test",
-    "**/@types"
+    "**/@types",
+    "server.js"
   ]
 }
