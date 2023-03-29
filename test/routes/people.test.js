@@ -14,11 +14,11 @@ after(() => {
   server.close();
 });
 
-describe("people route", () => {
+describe("/people route", () => {
   afterEach(() => {
     server.resetHandlers();
   });
-  it("should return a status code of 200", () => {
+  it("should return a status code of 404", () => {
     request(app)
       .get("/people")
       .expect(404)
@@ -26,7 +26,7 @@ describe("people route", () => {
         if (err) {
           throw err;
         }
-        ok(true);
-      });
+    });
+    ok(true);
   });
 });

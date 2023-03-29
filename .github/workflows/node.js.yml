@@ -28,7 +28,6 @@ jobs:
       - run: npm run coverage
         env:
           SITE_HOST: test.local
-          QUIET: true
       - name: Create Sentry release
         if: github.ref == 'main'
         uses: getsentry/action-release@v1
