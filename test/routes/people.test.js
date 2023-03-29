@@ -4,12 +4,13 @@ import { app } from "../../lib/index.js";
 import request from "supertest";
 import { ok } from "assert/strict";
 
-describe("/people route", () => {
-  before(() => {
-    server.listen({
-      onUnhandledRequest: "error",
-    });
+before(() => {
+  server.listen({
+    onUnhandledRequest: "error",
   });
+});
+
+describe("/people route", () => {
 
   after(() => {
     server.close();
