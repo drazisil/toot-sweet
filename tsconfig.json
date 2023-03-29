@@ -20,6 +20,6 @@
       "toot-sweet/models": ["./lib/models/index.js"]
     }
   },
-  "include": ["server.js", "lib/**/*.{js,ts}"],
+  "include": ["lib/index.js", "lib/**/*.{js,ts}"],
   "exclude": ["node_modules", "**/node_modules/*", "coverage"]
 }

@@ -32,10 +32,3 @@ declare module "@small-tech/https" {
     requestListener?: RequestListener<Request, Response>
   ): Server<Request, Response>;
 }
-
-
-declare module "http-signature" {
-  import { ClientRequest } from "node:http";
-  function sign(requestToSign: ClientRequest, options: {key: string, keyId: string, keyPassphrase?: string, headers?: string[]}): void
-}
-
