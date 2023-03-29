@@ -5,13 +5,12 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -20,23 +19,23 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - run: npm run coverage
-      env:
-        SITE_HOST: test.local
-    - name: Create Sentry release
-      if: github.ref == 'main'
-      uses: getsentry/action-release@v1
-      env:
-        SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        SENTRY_ORG: drazisilcom
-        SENTRY_PROJECT: toot-sweet
-      with:
-        environment: production
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm run coverage
+        env:
+          SITE_HOST: test.local
+      - name: Create Sentry release
+        if: github.ref == 'main'
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: drazisilcom
+          SENTRY_PROJECT: toot-sweet
+        with:
+          environment: production
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3

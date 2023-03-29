@@ -1,17 +1,5 @@
 {
   "all": true,
-  "reporter": [
-    "text",
-    "cobertura",
-    "html",
-    "lcov"
-  ],
-  "exclude": [
-    "build",
-    "frontend",
-    "coverage",
-    "test",
-    "**/@types",
-    "server.js"
-  ]
+  "reporter": ["text", "cobertura", "html", "lcov"],
+  "exclude": ["build", "frontend", "coverage", "test", "**/@types", "server.js"]
 }

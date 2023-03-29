@@ -1,6 +1,6 @@
 import { server } from "../../src/mocks/server.js";
 import { before, describe, it, afterEach, after } from "node:test";
-import { app } from "../../lib/index.js"
+import { app } from "../../lib/index.js";
 import request from "supertest";
 import { ok } from "assert/strict";
 

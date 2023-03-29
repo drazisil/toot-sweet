@@ -4,16 +4,18 @@ import { describe, it } from "node:test";
 
 describe("Error Handler Middleware", () => {
   it("should call the send() method of the res object that is passed to it", () => {
-    let message = ''
+    let message = "";
     const res = {
       send: (/** @type {string} */ m) => {
-        message = m
+        message = m;
       },
       get: () => "Sentry Error ID",
-      flushHeaders: () => { return; }
-    }
+      flushHeaders: () => {
+        return;
+      },
+    };
     // @ts-ignore
-    errorHandler(new Error("Test Error"), {}, res, {})
-    strictEqual(message, "Sentry Error ID\n", "Message is equal to foo")
-  })
-})
+    errorHandler(new Error("Test Error"), {}, res, {});
+    strictEqual(message, "Sentry Error ID\n", "Message is equal to foo");
+  });
+});
