@@ -24,7 +24,7 @@
     "@sveltejs/adapter-node": "^1.2.4",
     "@sveltejs/adapter-static": "^2.0.2",
     "@types/express": "^4.17.17",
-    "c8": "^7.13.0",
+    "c8": "^7.14.0",
     "eslint": "8.41.0",
     "eslint-config-prettier": "8.8.0",
     "lint-staged": "13.2.2",
