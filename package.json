@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@sentry/node": "^7.55.2",
-    "@sentry/profiling-node": "^1.0.4",
+    "@sentry/profiling-node": "^1.0.6",
     "@sentry/svelte": "^7.55.2",
     "@sentry/tracing": "^7.55.2",
     "@small-tech/https": "5.2.0",
