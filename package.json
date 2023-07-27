@@ -33,10 +33,10 @@
     "typescript": "5.1.6"
   },
   "dependencies": {
-    "@sentry/node": "^7.60.0",
+    "@sentry/node": "^7.60.1",
     "@sentry/profiling-node": "^1.1.2",
-    "@sentry/svelte": "^7.60.0",
-    "@sentry/tracing": "^7.60.0",
+    "@sentry/svelte": "^7.60.1",
+    "@sentry/tracing": "^7.60.1",
     "@small-tech/https": "5.2.0",
     "ajv": "8.12.0",
     "body-parser": "1.20.2",
