@@ -44,7 +44,7 @@
     "env-schema": "5.2.1",
     "express": "4.18.2",
     "helmet": "7.1.0",
-    "http-signature": "1.3.6",
+    "http-signature": "1.4.0",
     "pg": "8.11.3",
     "pg-hstore": "2.3.4",
     "sqlite3": "5.1.6"
