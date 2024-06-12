@@ -33,9 +33,9 @@
     "typescript": "5.4.5"
   },
   "dependencies": {
-    "@sentry/node": "^8.9.1",
-    "@sentry/profiling-node": "^8.9.1",
-    "@sentry/svelte": "^8.9.1",
+    "@sentry/node": "^8.9.2",
+    "@sentry/profiling-node": "^8.9.2",
+    "@sentry/svelte": "^8.9.2",
     "@sentry/tracing": "^7.114.0",
     "@small-tech/https": "5.2.0",
     "ajv": "8.16.0",
