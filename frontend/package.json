@@ -26,7 +26,7 @@
 		"svelte-check": "^3.8.6",
 		"typescript": "^5.5.4",
 		"vite": "^5.4.2",
-		"vitest": "^2.0.0"
+		"vitest": "^2.0.5"
 	},
 	"type": "module"
 }
