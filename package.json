@@ -39,7 +39,7 @@
     "@sentry/tracing": "^7.114.0",
     "@small-tech/https": "5.2.0",
     "ajv": "8.17.1",
-    "body-parser": "1.20.2",
+    "body-parser": "1.20.3",
     "ejs": "3.1.10",
     "env-schema": "6.0.0",
     "express": "4.19.2",
