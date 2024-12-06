@@ -42,7 +42,7 @@
     "body-parser": "1.20.3",
     "ejs": "3.1.10",
     "env-schema": "6.0.0",
-    "express": "4.21.1",
+    "express": "4.21.2",
     "helmet": "8.0.0",
     "http-signature": "1.4.0",
     "pg": "8.13.1",
