@@ -37,7 +37,7 @@
     "@sentry/profiling-node": "^8.54.0",
     "@sentry/svelte": "^8.54.0",
     "@sentry/tracing": "^7.120.3",
-    "@small-tech/https": "5.2.0",
+    "@small-tech/https": "5.3.2",
     "ajv": "8.17.1",
     "body-parser": "1.20.3",
     "ejs": "3.1.10",
