@@ -45,7 +45,7 @@
     "express": "5.1.0",
     "helmet": "8.1.0",
     "http-signature": "1.4.0",
-    "pg": "8.15.6",
+    "pg": "8.16.0",
     "pg-hstore": "2.3.4",
     "sqlite3": "5.1.7"
   },
