@@ -17,7 +17,7 @@
 		"@playwright/test": "^1.55.1",
 		"@sveltejs/adapter-auto": "^6.1.1",
 		"@sveltejs/kit": "^2.43.8",
-		"eslint": "^9.36.0",
+		"eslint": "^9.37.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte3": "^4.0.0",
 		"prettier": "^3.6.2",
