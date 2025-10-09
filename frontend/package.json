@@ -16,7 +16,7 @@
 	"devDependencies": {
 		"@playwright/test": "^1.56.0",
 		"@sveltejs/adapter-auto": "^6.1.1",
-		"@sveltejs/kit": "^2.44.0",
+		"@sveltejs/kit": "^2.46.4",
 		"eslint": "^9.37.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte3": "^4.0.0",
